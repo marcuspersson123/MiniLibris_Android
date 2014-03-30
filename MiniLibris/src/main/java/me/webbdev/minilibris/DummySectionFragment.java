@@ -50,7 +50,7 @@ public class DummySectionFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.fragment_main_dummy,
                 container, false);
 
-        new HttpAsyncTask(this.getActivity().getApplicationContext()).execute("http://minilibris.webbdev.me/minilibris/api/books");
+//        new HttpAsyncTask(this.getActivity().getApplicationContext()).execute("http://minilibris.webbdev.me/minilibris/api/books");
         return rootView;
     }
     @Override
@@ -129,7 +129,7 @@ public class DummySectionFragment extends ListFragment implements
                     result = "Did not work!";
 
             } catch (Exception e) {
-                Log.d("InputStream", e.getLocalizedMessage());
+                Log.e("InputStream", e.getLocalizedMessage());
             }
             return result;
         }
@@ -138,7 +138,7 @@ public class DummySectionFragment extends ListFragment implements
         protected void onPostExecute(String result) {
 
             // lägga som IntentService?
-            
+
            // List<Book> books = new ArrayList<Book>();
             try
             {
