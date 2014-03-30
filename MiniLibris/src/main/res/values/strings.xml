@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MiniLibris</string>
+
+
+    <string name="action_settings">Settings</string>
+    <string name="title_section1">All books</string>
+    <string name="title_section2">Lent</string>
+    <string name="title_section3">Reserved</string>
+    <string name="title_section4">Contact</string>
+
+</resources>
