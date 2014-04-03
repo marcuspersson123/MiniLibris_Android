@@ -1,7 +1,9 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.core;
 
 
-        import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase;
+
+import me.webbdev.minilibris.MiniLibrisContract;
 
 public class BooksTable {
 
@@ -15,12 +17,12 @@ public class BooksTable {
             "_id integer primary key autoincrement not null" +
             ");";
 
-    public static void create(SQLiteDatabase database) {
-        database.execSQL(DATABASE_CREATE);
+    public static void create(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + MiniLibrisContract.Books.BASE_PATH);
+        db.execSQL(DATABASE_CREATE);
     }
 
     public static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + MiniLibrisContract.Books.BASE_PATH);
         create(db);
     }
 
