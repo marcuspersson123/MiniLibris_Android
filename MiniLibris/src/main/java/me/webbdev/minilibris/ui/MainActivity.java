@@ -1,4 +1,4 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.ui;
 
 
 
@@ -16,21 +16,15 @@ package me.webbdev.minilibris;
         import android.content.pm.PackageManager.NameNotFoundException;
         import android.os.AsyncTask;
         import android.os.Bundle;
-        import android.support.v4.app.Fragment;
         import android.support.v4.app.FragmentActivity;
         import android.support.v4.app.FragmentManager;
         import android.support.v4.app.FragmentPagerAdapter;
         import android.support.v4.app.ListFragment;
-        import android.support.v4.app.NavUtils;
         import android.support.v4.view.ViewPager;
         import android.util.Log;
-        import android.view.Gravity;
-        import android.view.LayoutInflater;
         import android.view.Menu;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.TextView;
+
+        import me.webbdev.minilibris.R;
 
 public class MainActivity extends FragmentActivity {
 

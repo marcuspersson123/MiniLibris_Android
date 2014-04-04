@@ -1,4 +1,4 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.database;
 
         import android.content.ContentResolver;
         import android.net.Uri;
@@ -18,13 +18,17 @@ public class MiniLibrisContract {
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
                 + "/book";
 
-        public static final String BOOK_ID = "book_id";
+        public static final String _ID = "_id";
         public static final String TITLE = "title";
         public static final String PUBLISHER = "publisher";
         public static final String AUTHOR = "author";
         public static final String YEAR = "year";
         public static final String CATEGORY_ID = "category_id";
-        public static final String[] ALL_FIELDS = {BOOK_ID,TITLE, PUBLISHER, AUTHOR, YEAR, CATEGORY_ID, "_id"};
+        public static final String CHANGED = "changed";
+
+        public static final String[] ALL_FIELDS = {_ID,TITLE, PUBLISHER, AUTHOR, YEAR, CATEGORY_ID, CHANGED};
+
+
 
     }
 }

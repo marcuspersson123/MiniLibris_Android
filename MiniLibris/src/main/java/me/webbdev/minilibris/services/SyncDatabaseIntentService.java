@@ -1,9 +1,8 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.services;
 
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
@@ -20,6 +19,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import me.webbdev.minilibris.database.MiniLibrisContract;
 
 
 public class SyncDatabaseIntentService extends IntentService {
@@ -68,27 +69,27 @@ public class SyncDatabaseIntentService extends IntentService {
         boolean success = true;
         try {
             for (int i = 0; i < books.length(); i++) {
-                JSONObject jb = (JSONObject) books.get(i);
-                //Book book = new Book();
-                int book_id = jb.getInt(MiniLibrisContract.Books.BOOK_ID);
-                String title = jb.getString(MiniLibrisContract.Books.TITLE);
-                String author = jb.getString(MiniLibrisContract.Books.AUTHOR);
-                String publisher = jb.getString(MiniLibrisContract.Books.PUBLISHER);
-                int year = jb.getInt(MiniLibrisContract.Books.YEAR);
-                int category_id = jb.getInt(MiniLibrisContract.Books.CATEGORY_ID);
+                JSONObject jsonObject = (JSONObject) books.get(i);
 
-                ContentValues values = new ContentValues();
-                values.put(MiniLibrisContract.Books.BOOK_ID, book_id);
-                values.put(MiniLibrisContract.Books.TITLE, title);
-                values.put(MiniLibrisContract.Books.AUTHOR, author);
-                values.put(MiniLibrisContract.Books.PUBLISHER, publisher);
-                values.put(MiniLibrisContract.Books.YEAR, year);
-                values.put(MiniLibrisContract.Books.CATEGORY_ID, category_id);
-                Uri todoUri = this.getContentResolver().insert(MiniLibrisContract.Books.CONTENT_URI, values);
+                int book_id = jsonObject.getInt(MiniLibrisContract.Books._ID);
+                String title = jsonObject.getString(MiniLibrisContract.Books.TITLE);
+                String author = jsonObject.getString(MiniLibrisContract.Books.AUTHOR);
+                String publisher = jsonObject.getString(MiniLibrisContract.Books.PUBLISHER);
+                int year = jsonObject.getInt(MiniLibrisContract.Books.YEAR);
+                int category_id = jsonObject.getInt(MiniLibrisContract.Books.CATEGORY_ID);
+                String changed = jsonObject.getString(MiniLibrisContract.Books.CHANGED);
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MiniLibrisContract.Books._ID, book_id);
+                contentValues.put(MiniLibrisContract.Books.TITLE, title);
+                contentValues.put(MiniLibrisContract.Books.AUTHOR, author);
+                contentValues.put(MiniLibrisContract.Books.PUBLISHER, publisher);
+                contentValues.put(MiniLibrisContract.Books.YEAR, year);
+                contentValues.put(MiniLibrisContract.Books.CATEGORY_ID, category_id);
+                contentValues.put(MiniLibrisContract.Books.CHANGED, changed);
+
+                Uri todoUri = this.getContentResolver().insert(MiniLibrisContract.Books.CONTENT_URI, contentValues);
             }
- //           String[] projection = MiniLibrisContract.Books.ALL_FIELDS;
- //           Cursor cursor = this.getContentResolver().query(MiniLibrisContract.Books.CONTENT_URI, projection, null, null, null);
-
         } catch (JSONException e) {
             Log.e(TAG, "insertbooks",e);
             success = false;

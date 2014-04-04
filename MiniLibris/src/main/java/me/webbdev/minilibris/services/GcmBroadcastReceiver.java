@@ -1,4 +1,4 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.services;
 
 import android.app.Activity;
 import android.content.ComponentName;

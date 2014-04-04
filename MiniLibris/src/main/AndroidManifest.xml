@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,12 +28,12 @@
         </activity>
 
         <provider
-            android:name=".MiniLibrisContentProvider"
+            android:name=".database.MiniLibrisContentProvider"
             android:authorities="me.webbdev.minilibris.contentprovider" >
         </provider>
 
         <receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name=".services.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -42,8 +42,8 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".GcmIntentService" />
-        <service android:name=".SyncDatabaseIntentService" />
+        <service android:name=".services.GcmIntentService" />
+        <service android:name=".services.SyncDatabaseIntentService" />
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
     </application>

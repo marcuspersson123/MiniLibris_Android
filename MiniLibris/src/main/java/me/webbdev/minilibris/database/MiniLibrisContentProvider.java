@@ -1,4 +1,4 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.database;
 
 
 
@@ -49,7 +49,7 @@ public class MiniLibrisContentProvider extends ContentProvider {
             case BOOK_ID:
                 queryBuilder.setTables(MiniLibrisContract.Books.BASE_PATH);
                 // adding the ID to the original query
-                queryBuilder.appendWhere(MiniLibrisContract.Books.BOOK_ID + "="
+                queryBuilder.appendWhere(MiniLibrisContract.Books._ID + "="
                         + uri.getLastPathSegment());
                 break;
             default:
@@ -101,10 +101,10 @@ public class MiniLibrisContentProvider extends ContentProvider {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(MiniLibrisContract.Books.BASE_PATH,
-                            MiniLibrisContract.Books.BOOK_ID + "=" + id, null);
+                            MiniLibrisContract.Books._ID + "=" + id, null);
                 } else {
                     rowsDeleted = sqlDB.delete(MiniLibrisContract.Books.BASE_PATH,
-                            MiniLibrisContract.Books.BOOK_ID + "=" + id + " and "
+                            MiniLibrisContract.Books._ID + "=" + id + " and "
                                     + selection, selectionArgs);
                 }
                 break;
@@ -131,11 +131,11 @@ public class MiniLibrisContentProvider extends ContentProvider {
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
                     rowsUpdated = sqlDB.update(MiniLibrisContract.Books.BASE_PATH,
-                            values, MiniLibrisContract.Books.BOOK_ID + "=" + id,
+                            values, MiniLibrisContract.Books._ID + "=" + id,
                             null);
                 } else {
                     rowsUpdated = sqlDB.update(MiniLibrisContract.Books.BASE_PATH,
-                            values, MiniLibrisContract.Books.BOOK_ID + "=" + id
+                            values, MiniLibrisContract.Books._ID + "=" + id
                             + " and " + selection, selectionArgs);
                 }
                 break;

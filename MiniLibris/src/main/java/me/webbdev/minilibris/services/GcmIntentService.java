@@ -1,4 +1,4 @@
-package me.webbdev.minilibris;
+package me.webbdev.minilibris.services;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import me.webbdev.minilibris.ui.MainActivity;
 
 public class GcmIntentService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
