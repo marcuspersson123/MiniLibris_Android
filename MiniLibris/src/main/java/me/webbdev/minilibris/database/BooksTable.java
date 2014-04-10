@@ -24,4 +24,8 @@ public class BooksTable {
         create(db);
     }
 
+    public class Book {
+
+    }
+
 }

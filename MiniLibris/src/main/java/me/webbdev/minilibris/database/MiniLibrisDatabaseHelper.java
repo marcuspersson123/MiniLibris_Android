@@ -10,7 +10,7 @@ import me.webbdev.minilibris.database.BooksTable;
 public class MiniLibrisDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "books.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public MiniLibrisDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
