@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ui.MainActivity"
+            android:name="me.webbdev.minilibris.ui.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,12 +28,12 @@
         </activity>
 
         <provider
-            android:name=".database.MiniLibrisContentProvider"
+            android:name="me.webbdev.minilibris.database.MiniLibrisContentProvider"
             android:authorities="me.webbdev.minilibris.contentprovider" >
         </provider>
 
         <receiver
-            android:name=".services.GcmBroadcastReceiver"
+            android:name="me.webbdev.minilibris.services.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -42,10 +42,18 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".services.GcmIntentService" />
-        <service android:name=".services.SyncDatabaseIntentService" />
-        <meta-data android:name="com.google.android.gms.version"
+        <service android:name="me.webbdev.minilibris.services.GcmIntentService" />
+        <service android:name="me.webbdev.minilibris.services.SyncDatabaseIntentService" />
+        <service android:name="me.webbdev.minilibris.services.ReserveIntentService" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name="me.webbdev.minilibris.ui.BookDetailActivity"
+            android:label="@string/title_activity_book_detail" >
+        </activity>
     </application>
 
 </manifest>

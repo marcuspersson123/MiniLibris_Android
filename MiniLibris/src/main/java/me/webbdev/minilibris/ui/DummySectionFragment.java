@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -26,12 +27,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import me.webbdev.minilibris.database.MiniLibrisContract;
 import me.webbdev.minilibris.R;
+import android.widget.*;
 
 public class DummySectionFragment extends ListFragment implements
-        LoaderManager.LoaderCallbacks<Cursor>  {
+        LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -49,12 +53,15 @@ public class DummySectionFragment extends ListFragment implements
 
         View rootView = inflater.inflate(R.layout.fragment_main_dummy,
                 container, false);
+
         return rootView;
     }
     @Override
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
+        ListView lv = (ListView) this.getListView();
+        lv.setOnItemClickListener(this);
         fillData();
     }
 
@@ -87,4 +94,10 @@ public class DummySectionFragment extends ListFragment implements
     }
 
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this.mContext,BookDetailActivity.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
+    }
 }
