@@ -75,6 +75,42 @@ public class MainActivity extends FragmentActivity {
 
             if (regid.isEmpty()) {
                 registerInBackground();
+            } else {
+
+
+                // test nedan att skicka
+
+
+                new AsyncTask<Void,Void,String>() {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        String msg = "";
+                        try {
+                            Bundle data = new Bundle();
+                            data.putString("my_message", "Hello World");
+                            data.putString("my_action",
+                                    "com.google.android.gcm.demo.app.ECHO_NOW");
+                            String id = Integer.toString(msgId.incrementAndGet());
+                            gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
+                            msg = "Sent message";
+                        } catch (IOException ex) {
+                            msg = "Error :" + ex.getMessage();
+                        }
+                        return msg;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String msg) {
+
+                    }
+
+
+                }.execute(null, null, null);
+
+
+
+
+
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");

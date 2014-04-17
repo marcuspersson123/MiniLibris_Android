@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <permission
@@ -18,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="me.webbdev.minilibris.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,12 +29,12 @@
         </activity>
 
         <provider
-            android:name="me.webbdev.minilibris.database.MiniLibrisContentProvider"
+            android:name=".database.MiniLibrisContentProvider"
             android:authorities="me.webbdev.minilibris.contentprovider" >
         </provider>
 
         <receiver
-            android:name="me.webbdev.minilibris.services.GcmBroadcastReceiver"
+            android:name=".services.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -42,16 +43,16 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="me.webbdev.minilibris.services.GcmIntentService" />
-        <service android:name="me.webbdev.minilibris.services.SyncDatabaseIntentService" />
-        <service android:name="me.webbdev.minilibris.services.ReserveIntentService" />
+        <service android:name=".services.GcmIntentService" />
+        <service android:name=".services.SyncDatabaseIntentService" />
+        <service android:name=".services.ReserveIntentService" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="me.webbdev.minilibris.ui.BookDetailActivity"
+            android:name=".ui.BookDetailActivity"
             android:label="@string/title_activity_book_detail" >
         </activity>
     </application>
