@@ -68,6 +68,9 @@ public class DatabaseSyncer {
             InputStream inputStream = null;
             HttpClient httpclient = new DefaultHttpClient();
             Uri.Builder builder = Uri.parse(url).buildUpon();
+            if (fetchTimestamp == null) {
+                fetchTimestamp = getWasSynced();
+            }
             builder.appendQueryParameter("after_timestamp", fetchTimestamp.toString());
             String url = builder.build().toString();
             HttpResponse httpResponse = httpclient.execute(new HttpGet(url));

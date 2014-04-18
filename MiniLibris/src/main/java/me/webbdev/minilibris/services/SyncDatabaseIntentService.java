@@ -38,7 +38,7 @@ public class SyncDatabaseIntentService extends IntentService {
         Timestamp lastSync = databaseSyncer.getWasSynced();
         Timestamp aDayAgo = new Timestamp(System.currentTimeMillis()-24*60*60*1000);
 
-        if (lastSync.after(aDayAgo)) {
+        if (lastSync.before(aDayAgo)) {
             databaseSyncer.setFetchFromTime(databaseSyncer.getWasSynced());
         }
         databaseSyncer.sync();
