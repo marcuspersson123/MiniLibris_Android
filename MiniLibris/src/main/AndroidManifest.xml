@@ -45,7 +45,7 @@
 
         <service android:name=".services.GcmIntentService" />
         <service android:name=".services.SyncDatabaseIntentService" />
-        <service android:name=".services.ReserveIntentService" />
+
 
         <meta-data
             android:name="com.google.android.gms.version"

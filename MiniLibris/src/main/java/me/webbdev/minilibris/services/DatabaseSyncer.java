@@ -82,9 +82,8 @@ public class DatabaseSyncer {
             Log.e(TAG, "client protocol", e);
         } catch (IOException e) {
             Log.e(TAG, "io exception", e);
-        } finally {
-            return result;
         }
+        return result;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {

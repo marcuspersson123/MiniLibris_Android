@@ -12,16 +12,13 @@ import java.util.Calendar;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.Dialog;
-import me.webbdev.minilibris.services.ReserveIntentService;
 
 import me.webbdev.minilibris.database.*;
 
-/**
- * Created by marcusssd on 2014-04-11.
- */
 public class BookDetailFragment extends Fragment implements View.OnClickListener {
     TextView titleTextView;
     private Button reserveButton;
+    private long book_id;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,9 +34,9 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
         super.onActivityCreated(bundle);
 
         this.reserveButton.setOnClickListener(this);
-        long id = getActivity().getIntent().getLongExtra("id", -1);
+         book_id = getActivity().getIntent().getIntExtra("id", -1);
 
-        Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, id);
+        Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, book_id);
         Cursor cursor = this.getActivity().getContentResolver().query(singleUri, MiniLibrisContract.Books.ALL_FIELDS, null, null, null);
         if (cursor.getCount()>0) {
             cursor.moveToFirst();
@@ -51,8 +48,26 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View view) {
         if (view == this.reserveButton) {
+
             DialogFragment newFragment = new DatePickerFragment();
             newFragment.show(getActivity().getFragmentManager(), "datePicker");
+        }
+    }
+
+
+    public void startingReservation() {
+        this.reserveButton.setEnabled(false);
+    }
+
+    public void reservationFailed() {
+        this.reserveButton.setEnabled(true);
+
+    }
+
+    public void reservationTaskFinished(String message) {
+        this.reserveButton.setEnabled(true);
+        if (message != null) {
+            Toast.makeText(getActivity(), message,Toast.LENGTH_LONG).show();
         }
     }
 
@@ -74,20 +89,20 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
             mMonth = month;
             mYear = year;
 
-            DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
-            dialog.getDatePicker().setMinDate(c.getTimeInMillis());
-            dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Reserve", new DialogInterface.OnClickListener() {
+            final DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), this, year, month, day);
+            dpDialog.getDatePicker().setMinDate(c.getTimeInMillis());
+            dpDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Reserve", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    Intent intent = new Intent(getActivity(), ReserveIntentService.class);
-                    intent.putExtra("id", getActivity().getIntent().getLongExtra("id", -1));
-                    intent.putExtra("year", mYear);
-                    intent.putExtra("month", mMonth);
-                    intent.putExtra("day", mDay);
-                            getActivity().startService(intent);
+                    BookDetailActivity activity = (BookDetailActivity) getActivity();
+                    int year = dpDialog.getDatePicker().getYear();
+                    int month = dpDialog.getDatePicker().getMonth();
+                    int day = dpDialog.getDatePicker().getDayOfMonth();
+
+                    activity.startReservationTask(book_id, year, month, day);
                     dialog.dismiss();
                 }
             });
-            return dialog;
+            return dpDialog;
         }
 
         @Override

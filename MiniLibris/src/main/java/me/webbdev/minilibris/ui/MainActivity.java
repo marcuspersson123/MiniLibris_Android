@@ -1,30 +1,29 @@
 package me.webbdev.minilibris.ui;
 
 
+import java.io.IOException;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
-        import java.io.IOException;
-        import java.util.Locale;
-        import java.util.concurrent.atomic.AtomicInteger;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GooglePlayServicesUtil;
-        import com.google.android.gms.gcm.GoogleCloudMessaging;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.Menu;
 
-        import android.content.Context;
-        import android.content.SharedPreferences;
-        import android.content.pm.PackageInfo;
-        import android.content.pm.PackageManager.NameNotFoundException;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.support.v4.app.FragmentActivity;
-        import android.support.v4.app.FragmentManager;
-        import android.support.v4.app.FragmentPagerAdapter;
-        import android.support.v4.app.ListFragment;
-        import android.support.v4.view.ViewPager;
-        import android.util.Log;
-        import android.view.Menu;
-
-        import me.webbdev.minilibris.R;
+import me.webbdev.minilibris.R;
 
 public class MainActivity extends FragmentActivity {
 
@@ -52,10 +51,12 @@ public class MainActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -75,58 +76,21 @@ public class MainActivity extends FragmentActivity {
 
             if (regid.isEmpty()) {
                 registerInBackground();
-            } else {
-
-
-                // test nedan att skicka
-
-
-                new AsyncTask<Void,Void,String>() {
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        String msg = "";
-                        try {
-                            Bundle data = new Bundle();
-                            data.putString("my_message", "Hello World");
-                            data.putString("my_action",
-                                    "com.google.android.gcm.demo.app.ECHO_NOW");
-                            String id = Integer.toString(msgId.incrementAndGet());
-                            gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
-                            msg = "Sent message";
-                        } catch (IOException ex) {
-                            msg = "Error :" + ex.getMessage();
-                        }
-                        return msg;
-                    }
-
-                    @Override
-                    protected void onPostExecute(String msg) {
-
-                    }
-
-
-                }.execute(null, null, null);
-
-
-
-
-
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
 
 
-
     }
 
     /**
      * Gets the current registration ID for application on GCM service.
-     * <p>
+     * <p/>
      * If result is empty, the app needs to register.
      *
      * @return registration ID, or empty string if there is no existing
-     *         registration ID.
+     * registration ID.
      */
     private String getRegistrationId(Context context) {
         final SharedPreferences prefs = getGCMPreferences(context);
@@ -173,7 +137,7 @@ public class MainActivity extends FragmentActivity {
 
     /**
      * Registers the application with GCM servers asynchronously.
-     * <p>
+     * <p/>
      * Stores the registration ID and app versionCode in the application's
      * shared preferences.
      */
@@ -232,7 +196,7 @@ public class MainActivity extends FragmentActivity {
      * {@code SharedPreferences}.
      *
      * @param context application's context.
-     * @param regId registration ID
+     * @param regId   registration ID
      */
     private void storeRegistrationId(Context context, String regId) {
         final SharedPreferences prefs = getGCMPreferences(context);
@@ -257,6 +221,7 @@ public class MainActivity extends FragmentActivity {
         return true;
     }
 
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -269,9 +234,9 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public ListFragment getItem(int position) {
-            ListFragment fragment = new DummySectionFragment();
+            ListFragment fragment = new BooksListFragment();
             Bundle args = new Bundle();
-            args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
+            args.putInt(BooksListFragment.ARG_SECTION_NUMBER, position + 1);
             fragment.setArguments(args);
             return fragment;
         }

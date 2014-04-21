@@ -34,7 +34,7 @@ import me.webbdev.minilibris.database.MiniLibrisContract;
 import me.webbdev.minilibris.R;
 import android.widget.*;
 
-public class DummySectionFragment extends ListFragment implements
+public class BooksListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
     /**
      * The fragment argument representing the section number for this
@@ -44,7 +44,7 @@ public class DummySectionFragment extends ListFragment implements
     public SimpleCursorAdapter adapter;
     private Context mContext;
 
-    public DummySectionFragment() {
+    public BooksListFragment() {
     }
 
     @Override
@@ -97,7 +97,7 @@ public class DummySectionFragment extends ListFragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this.mContext,BookDetailActivity.class);
-        intent.putExtra("id", id);
+        intent.putExtra("id", (int) id);
         startActivity(intent);
     }
 }

@@ -5,20 +5,18 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -35,28 +33,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
-public class ReserveService extends Service {
+public class ReserveIntentService extends IntentService {
 
 
     private static final String TAG = "ReserveIntentService";
-    private final String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
+    public static final String RESERVE_INTENT_SERVICE_READY = "reserve_intent_service_ready";
+    private String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
 
+    public ReserveIntentService(String name) {
+        super(TAG);
+    }
 
     @Override
-    public IBinder onBind(Intent intent) {
-       /* long book_id = intent.getLongExtra("id",-1);
+    public void onHandleIntent(Intent intent) {
+        long book_id = intent.getLongExtra("id",-1);
         int year = intent.getIntExtra("year",-1);
         int month = intent.getIntExtra("month",-1);
         int day = intent.getIntExtra("day",-1);
-        sendReservation(book_id, year, month, day);
-*/
-        return (new LocalBinder()); // En binder skapas bara en gång
-    }
-
-    public class LocalBinder extends Binder {
-        ReserveService getService() {
-            return ReserveService.this;
+        String result = sendReservation(book_id, year, month, day);
+        Intent broadcastIntent = new Intent(RESERVE_INTENT_SERVICE_READY);
+        boolean success = (result=="");
+        broadcastIntent.putExtra("success", success);
+        if (!success) {
+            broadcastIntent.putExtra("message", result);
         }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+
     }
 
     public String sendReservation(long book_id, int year, int month, int day) {

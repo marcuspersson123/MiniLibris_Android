@@ -9,6 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:name="me.webbdev.minilibris.ui.BookDetailFragment"
-        android:id="@+id/fragment"
+        android:id="@+id/bookDetailFragment"
         tools:layout="@layout/fragment_book_detail" />
 </LinearLayout>
