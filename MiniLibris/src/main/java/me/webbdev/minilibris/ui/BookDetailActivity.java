@@ -7,9 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import me.webbdev.minilibris.R;
 
-public class BookDetailActivity extends Activity implements ReservationTaskFragment.TaskCallbacks {
+public class BookDetailActivity extends Activity implements ReservationTaskFragment.TaskCallback {
 
-    private int id;
     private BookDetailFragment bookDetailFragment;
     private ReservationTaskFragment mTaskFragment;
     private static final String TAG_TASK_FRAGMENT = "task_fragment";
@@ -17,7 +16,6 @@ public class BookDetailActivity extends Activity implements ReservationTaskFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.id = getIntent().getIntExtra("id",-1);
 
         setContentView(R.layout.activity_book_detail);
 

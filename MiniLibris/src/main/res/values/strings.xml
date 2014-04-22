@@ -7,7 +7,7 @@
     <string name="title_section2">Lent</string>
     <string name="title_section3">Reserved</string>
     <string name="title_section4">Contact</string>
-    <string name="title_activity_book_detail">BookDetailActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_book_detail">Book details</string>
+    <string name="short_text">\"A short text\"</string><string name="reserve_button_text">Reserve...</string><string name="sample_title">The Sample Book</string>
 
 </resources>

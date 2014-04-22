@@ -16,7 +16,7 @@ import android.app.Dialog;
 import me.webbdev.minilibris.database.*;
 
 public class BookDetailFragment extends Fragment implements View.OnClickListener {
-    TextView titleTextView;
+    private TextView titleTextView;
     private Button reserveButton;
     private long book_id;
 
@@ -68,6 +68,8 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
         this.reserveButton.setEnabled(true);
         if (message != null) {
             Toast.makeText(getActivity(), message,Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getActivity(), "The book is reserved",Toast.LENGTH_LONG).show();
         }
     }
 

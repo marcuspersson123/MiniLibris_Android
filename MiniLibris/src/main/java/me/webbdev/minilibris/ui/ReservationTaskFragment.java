@@ -3,17 +3,10 @@ package me.webbdev.minilibris.ui;
 import android.app.Activity;
 
 import android.app.Fragment;
-import android.app.IntentService;
-import android.app.Service;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.IBinder;
 
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -29,7 +22,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,7 +35,7 @@ public class ReservationTaskFragment extends Fragment {
 
     private static final String TAG = "ReserveFragment";
     public static final String RESERVE_INTENT_SERVICE_READY = "reserve_intent_service_ready";
-    private String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
+    private static final String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
     private String result;
 
     public void setBook_id(long book_id) {
@@ -75,15 +67,15 @@ public class ReservationTaskFragment extends Fragment {
      * Callback interface through which the fragment will report the
      * task's progress and results back to the Activity.
      */
-    static interface TaskCallbacks {
+    static interface TaskCallback {
         void onPreExecute();
         void onProgressUpdate(int percent);
         void onCancelled();
         void onPostExecute();
     }
 
-    private TaskCallbacks mCallbacks;
-    private DummyTask mTask;
+    private TaskCallback mTaskCallback;
+
 
     /**
      * Hold a reference to the parent Activity so we can report the
@@ -94,7 +86,7 @@ public class ReservationTaskFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mCallbacks = (TaskCallbacks) activity;
+        mTaskCallback = (TaskCallback) activity;
     }
 
     /**
@@ -112,8 +104,8 @@ public class ReservationTaskFragment extends Fragment {
 
     public void start() {
         // Create and execute the background task.
-        mTask = new DummyTask();
-        mTask.execute();
+        ReservationTask reservationTask = new ReservationTask();
+        reservationTask.execute();
     }
     /**
      * Set the callback to null so we don't accidentally leak the
@@ -122,7 +114,7 @@ public class ReservationTaskFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mCallbacks = null;
+        mTaskCallback = null;
     }
 
     /**
@@ -133,13 +125,13 @@ public class ReservationTaskFragment extends Fragment {
      * method in case they are invoked after the Activity's and
      * Fragment's onDestroy() method have been called.
      */
-    private class DummyTask extends AsyncTask<Void, Integer, Void> {
+    private class ReservationTask extends AsyncTask<Void, Integer, Void> {
 
         @Override
         protected void onPreExecute() {
-            if (mCallbacks != null) {
+            if (mTaskCallback != null) {
                 result = null;
-                mCallbacks.onPreExecute();
+                mTaskCallback.onPreExecute();
             }
         }
 
@@ -156,22 +148,22 @@ public class ReservationTaskFragment extends Fragment {
 
         @Override
         protected void onProgressUpdate(Integer... percent) {
-            if (mCallbacks != null) {
-                mCallbacks.onProgressUpdate(percent[0]);
+            if (mTaskCallback != null) {
+                mTaskCallback.onProgressUpdate(percent[0]);
             }
         }
 
         @Override
         protected void onCancelled() {
-            if (mCallbacks != null) {
-                mCallbacks.onCancelled();
+            if (mTaskCallback != null) {
+                mTaskCallback.onCancelled();
             }
         }
 
         @Override
         protected void onPostExecute(Void ignore) {
-            if (mCallbacks != null) {
-                mCallbacks.onPostExecute();
+            if (mTaskCallback != null) {
+                mTaskCallback.onPostExecute();
             }
         }
     }
@@ -202,7 +194,7 @@ public class ReservationTaskFragment extends Fragment {
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(postParams);
             entity.setContentEncoding(HTTP.UTF_8);
 
-            InputStream inputStream = null;
+            InputStream inputStream;
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(url);
             httppost.setEntity(entity);
@@ -243,13 +235,13 @@ public class ReservationTaskFragment extends Fragment {
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String line = "";
+        String line;
         String result = "";
         while ((line = bufferedReader.readLine()) != null) {
             result += line;
         }
         inputStream.close();
-        if (result == "") {
+        if (result.equals("")) {
             return null;
         } else {
             return result;

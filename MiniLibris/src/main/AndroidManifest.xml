@@ -30,11 +30,12 @@
 
         <provider
             android:name=".database.MiniLibrisContentProvider"
-            android:authorities="me.webbdev.minilibris.contentprovider" >
+            android:authorities="me.webbdev.minilibris.contentprovider"
+            android:exported="false">
         </provider>
 
         <receiver
-            android:name=".services.GcmBroadcastReceiver"
+            android:name=".services.CloudBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -43,7 +44,6 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".services.GcmIntentService" />
         <service android:name=".services.SyncDatabaseIntentService" />
 
 

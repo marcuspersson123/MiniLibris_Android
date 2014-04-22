@@ -7,14 +7,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
+        android:text="@string/short_text"
         android:id="@+id/titleTextView"
         android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reserve"
+        android:text="@string/reserve_button_text"
         android:id="@+id/reserveButton"
         android:layout_gravity="center_horizontal" />
 

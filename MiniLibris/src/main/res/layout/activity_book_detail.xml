@@ -7,8 +7,16 @@
 
     <fragment
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
+
         android:name="me.webbdev.minilibris.ui.BookDetailFragment"
         android:id="@+id/bookDetailFragment"
         tools:layout="@layout/fragment_book_detail" />
+    <fragment
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="me.webbdev.minilibris.ui.ReservationsListFragment"
+        android:id="@+id/reservationsListFragment"
+        tools:layout="@layout/fragment_reservations_list" />
 </LinearLayout>
