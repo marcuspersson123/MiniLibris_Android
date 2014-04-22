@@ -1,7 +1,11 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_height="wrap_content" android:layout_width="match_parent"
+    >
+<TextView
     android:id="@+id/begins"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_weight="1"
     android:text="@string/sample_title"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:textColor="#222222"
@@ -10,3 +14,9 @@
     android:paddingRight="10dip"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:id="@+id/deleteReservation"/>
+    </LinearLayout>

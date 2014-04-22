@@ -10,6 +10,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 
 import me.webbdev.minilibris.R;
+import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
 public class MainActivity extends FragmentActivity {
 
@@ -51,10 +53,26 @@ public class MainActivity extends FragmentActivity {
      */
     ViewPager mViewPager;
 
+    // Overridden just to know if the user rotated the device in onCreate()
+@Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("dummy", "dummy");
 
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            Log.e(TAG, "app startup");
+            Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
+            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+            startService(syncDatabaseIntent);
+
+        } else {
+            Log.e(TAG, "orientation change");
+        }
         setContentView(R.layout.activity_main);
 
 

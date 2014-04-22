@@ -24,10 +24,11 @@ import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.database.MiniLibrisContract;
 
 public class ReservationsListFragment extends ListFragment implements
-        LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     public SimpleCursorAdapter adapter;
     private Context mContext;
+    private int bookId;
 
     public ReservationsListFragment() {
     }
@@ -45,8 +46,10 @@ public class ReservationsListFragment extends ListFragment implements
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
-        ListView lv = this.getListView();
-        lv.setOnItemClickListener(this);
+        //ListView lv = this.getListView();
+        //lv.setOnItemClickListener(this);
+
+        bookId = getActivity().getIntent().getIntExtra("id", -1);
         fillData();
     }
 
@@ -63,8 +66,10 @@ public class ReservationsListFragment extends ListFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Reservations.ALL_FIELDS;
+        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ?";
+        String[] whereVariables = new String[]{String.valueOf(this.bookId)};
         CursorLoader cursorLoader = new CursorLoader( mContext,
-                MiniLibrisContract.Reservations.CONTENT_URI, projection, null, null, null);
+                MiniLibrisContract.Reservations.CONTENT_URI, projection, whereClause , whereVariables, null);
         return cursorLoader;
     }
 
@@ -79,10 +84,10 @@ public class ReservationsListFragment extends ListFragment implements
     }
 
 
-    @Override
+/*    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this.mContext,BookDetailActivity.class);
         intent.putExtra("id", (int) id);
         startActivity(intent);
-    }
+    }*/
 }
