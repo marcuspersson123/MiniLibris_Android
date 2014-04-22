@@ -17,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.database.MiniLibrisContract;
@@ -26,7 +28,7 @@ import me.webbdev.minilibris.database.MiniLibrisContract;
 public class ReservationsListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    public SimpleCursorAdapter adapter;
+    public ReservationsCursorAdapter adapter;
     private Context mContext;
     private int bookId;
 
@@ -58,7 +60,7 @@ public class ReservationsListFragment extends ListFragment implements
         int[] to = new int[] { R.id.begins};
 
         getLoaderManager().initLoader(0, null, this);
-        adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_reservation, null, from, to, 0);
+        adapter = new ReservationsCursorAdapter(mContext,null);
 
         setListAdapter(adapter);
     }
@@ -81,6 +83,31 @@ public class ReservationsListFragment extends ListFragment implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    public class ReservationsCursorAdapter extends CursorAdapter {
+        private Context context;
+
+        LayoutInflater mInflater;
+
+        public ReservationsCursorAdapter(Context context, Cursor c) {
+            // that constructor should be used with loaders.
+            super(context, c, 0);
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            TextView begins = (TextView)view.findViewById(R.id.begins);
+            begins.setText(cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS)));
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            View v = mInflater.inflate(R.layout.list_item_reservation, parent, false);
+            return v;
+        }
+
     }
 
 
