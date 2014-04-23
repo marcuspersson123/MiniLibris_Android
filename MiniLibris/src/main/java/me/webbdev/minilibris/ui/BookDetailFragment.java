@@ -45,34 +45,38 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
         }
     }
 
+    // The user clicked on the reserve-button. A Datepicker gets displayed.
     @Override
     public void onClick(View view) {
         if (view == this.reserveButton) {
-
             DialogFragment newFragment = new DatePickerFragment();
             newFragment.show(getActivity().getFragmentManager(), "datePicker");
         }
     }
 
-
-    public void startingReservation() {
+    // Event when a reservation is to be sent from headless fragment.
+    public void onStartingReservation() {
         this.reserveButton.setEnabled(false);
     }
 
-    public void reservationFailed() {
+    // Event when a reservation failed due to IO or server error in the headless fragment.
+    public void onReservationFailed() {
         this.reserveButton.setEnabled(true);
-
+        Toast.makeText(getActivity(), "Error trying to reserve!",Toast.LENGTH_LONG).show();
     }
 
-    public void reservationTaskFinished(String message) {
+    // Triggered when the headless fragment communicated with the server.
+    // If a message, then an error occurred.
+    public void onReservationTaskFinished(String errorMessage) {
         this.reserveButton.setEnabled(true);
-        if (message != null) {
-            Toast.makeText(getActivity(), message,Toast.LENGTH_LONG).show();
+        if (errorMessage != null) {
+            Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(getActivity(), "The book is reserved",Toast.LENGTH_LONG).show();
         }
     }
 
+    // The date picker fragment.
     public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
         int mYear, mMonth, mDay;
@@ -99,8 +103,7 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
                     int year = dpDialog.getDatePicker().getYear();
                     int month = dpDialog.getDatePicker().getMonth();
                     int day = dpDialog.getDatePicker().getDayOfMonth();
-
-                    activity.startReservationTask(book_id, year, month, day);
+                    onReserveDateSelected(book_id, year, month, day);
                     dialog.dismiss();
                 }
             });
@@ -113,5 +116,11 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
             mMonth = month;
             mYear = year;
         }
+    }
+
+    // Triggered when a date was selected in the date picker.
+    // Passes the message to the Activity, which in turn will start a headless fragment.
+    private void onReserveDateSelected(long book_id, int year, int month, int day) {
+        ((BookDetailActivity) getActivity()).onStartReservationTask(book_id, year, month, day);
     }
 }

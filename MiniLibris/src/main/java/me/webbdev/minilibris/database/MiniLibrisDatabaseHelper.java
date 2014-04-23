@@ -12,7 +12,7 @@ import me.webbdev.minilibris.services.DatabaseFetcher;
 public class MiniLibrisDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "minilibris.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private Context context;
 
     public MiniLibrisDatabaseHelper(Context context) {

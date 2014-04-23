@@ -5,14 +5,19 @@ import android.app.FragmentManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import me.webbdev.minilibris.R;
 
-public class BookDetailActivity extends Activity implements ReservationTaskFragment.TaskCallback {
+public class BookDetailActivity extends Activity implements CreateReservationTaskFragment.TaskCallback {
 
     private BookDetailFragment bookDetailFragment;
-    private ReservationTaskFragment mTaskFragment;
-    private static final String TAG_TASK_FRAGMENT = "task_fragment";
+    private CreateReservationTaskFragment mCreateReservationTaskFragment;
+    private static final String TAG_CREATE_RESERVATION_TASK_FRAGMENT = "1";
+    private static final String TAG_DELETE_RESERVATION_TASK_FRAGMENT = "2";
+    private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
 
+    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,29 +26,37 @@ public class BookDetailActivity extends Activity implements ReservationTaskFragm
 
         this.bookDetailFragment = (BookDetailFragment) this.getFragmentManager().findFragmentById(R.id.bookDetailFragment);
         FragmentManager fm = getFragmentManager();
-        mTaskFragment = (ReservationTaskFragment) fm.findFragmentByTag(TAG_TASK_FRAGMENT);
-
+        mCreateReservationTaskFragment = (CreateReservationTaskFragment) fm.findFragmentByTag(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
-        if (mTaskFragment == null) {
-            mTaskFragment = new ReservationTaskFragment();
-            fm.beginTransaction().add(mTaskFragment, TAG_TASK_FRAGMENT).commit();
+        if (mCreateReservationTaskFragment == null) {
+            mCreateReservationTaskFragment = new CreateReservationTaskFragment(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
+            fm.beginTransaction().add(mCreateReservationTaskFragment, TAG_CREATE_RESERVATION_TASK_FRAGMENT).commit();
         }
+
+        mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fm.findFragmentByTag(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
+        // If the Fragment is non-null, then it is currently being
+        // retained across a configuration change.
+        if (mDeleteReservationTaskFragment == null) {
+            mDeleteReservationTaskFragment = new DeleteReservationTaskFragment(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
+            fm.beginTransaction().add(mDeleteReservationTaskFragment, TAG_DELETE_RESERVATION_TASK_FRAGMENT).commit();
+        }
+
     }
 
-    public void startReservationTask(long book_id, int year, int month, int day) {
-
-        mTaskFragment.setBook_id(book_id);
-        mTaskFragment.setYear(year);
-        mTaskFragment.setMonth(month);
-        mTaskFragment.setDay(day);
-        mTaskFragment.start();
-
+    // When a user wants to reserve the book.
+    // Tells a headless fragment to reserve.
+    public void onStartReservationTask(long book_id, int year, int month, int day) {
+        mCreateReservationTaskFragment.setBookId(book_id);
+        mCreateReservationTaskFragment.setYear(year);
+        mCreateReservationTaskFragment.setMonth(month);
+        mCreateReservationTaskFragment.setDay(day);
+        mCreateReservationTaskFragment.start();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.book_detail, menu);
         return true;
@@ -62,23 +75,37 @@ public class BookDetailActivity extends Activity implements ReservationTaskFragm
     }
 
     @Override
-    public void onPreExecute() {
-        bookDetailFragment.startingReservation();
+    public void onPreExecute(String TAG) {
+        if (TAG.equals(TAG_DELETE_RESERVATION_TASK_FRAGMENT)) {
+
+        } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
+            bookDetailFragment.onStartingReservation();
+        }
+
     }
 
     @Override
-    public void onProgressUpdate(int percent) {
+    public void onProgressUpdate(String TAG, int percent) {
 
     }
 
     @Override
-    public void onCancelled() {
-bookDetailFragment.reservationFailed();
+    public void onCancelled(String TAG) {
+        bookDetailFragment.onReservationFailed();
     }
 
     @Override
-    public void onPostExecute() {
-bookDetailFragment.reservationTaskFinished(mTaskFragment.getResult());
+    public void onPostExecute(String TAG) {
+        if (TAG.equals(TAG_DELETE_RESERVATION_TASK_FRAGMENT)) {
+            Toast.makeText(this,mDeleteReservationTaskFragment.getResult(),Toast.LENGTH_LONG).show();
+        } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
+            bookDetailFragment.onReservationTaskFinished(mCreateReservationTaskFragment.getResult());
+        }
     }
 
+
+    public void onStartDeleteReservationTask(int reservationId) {
+        mDeleteReservationTaskFragment.setReservationId(reservationId);
+        mDeleteReservationTaskFragment.start();
+    }
 }

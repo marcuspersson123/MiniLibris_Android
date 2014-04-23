@@ -44,6 +44,7 @@ public class ReservationsSynchronizer {
             for (int i = 0; i < reservationsArray.length(); i++) {
                 JSONObject reservation = reservationsArray.getJSONObject(i);
                 int reservationId = reservation.getInt("reservation_id");
+                boolean old = (reservation.getInt("old") > 0);
                 Timestamp serverRowTimestamp = Timestamp.valueOf(reservation.getString("changed"));
                 if (serverRowTimestamp.after(lastServerSync)) {
                     lastServerSync = serverRowTimestamp;
@@ -53,9 +54,15 @@ public class ReservationsSynchronizer {
                 if (null == cursor) {
                     success = false;
                 } else if (cursor.getCount() < 1) {
-                    success = insertReservation(reservation);
+                    if (!old) {
+                        success = insertReservation(reservation);
+                    }
                 } else {
-                    success = updateReservation(reservationId, reservation);
+                    if (!old) {
+                        success = updateReservation(reservationId, reservation);
+                    } else {
+                        deleteReservation(reservationId);
+                    }
                 }
                 if (!success) {
                     break;
@@ -63,7 +70,7 @@ public class ReservationsSynchronizer {
 
             }
             if (success) {
-                Uri allUri = MiniLibrisContract.Reservations.CONTENT_URI;
+                /*Uri allUri = MiniLibrisContract.Reservations.CONTENT_URI;
                 Cursor cursor = this.context.getContentResolver().query(allUri, MiniLibrisContract.Reservations.ALL_FIELDS, null, null, null);
                 while (cursor.moveToNext()) {
                     String ends = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
@@ -83,7 +90,7 @@ public class ReservationsSynchronizer {
                     }
 
 
-                }
+                }*/
                 return lastServerSync;
             } else {
                 return null;

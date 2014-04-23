@@ -4,7 +4,6 @@ import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,10 +15,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CursorAdapter;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import me.webbdev.minilibris.R;
@@ -32,6 +29,7 @@ public class ReservationsListFragment extends ListFragment implements
     private Context mContext;
     private int bookId;
 
+
     public ReservationsListFragment() {
     }
 
@@ -41,6 +39,8 @@ public class ReservationsListFragment extends ListFragment implements
 
         View rootView = inflater.inflate(R.layout.fragment_reservations_list,
                 container, false);
+
+
 
         return rootView;
     }
@@ -85,6 +85,8 @@ public class ReservationsListFragment extends ListFragment implements
         adapter.swapCursor(null);
     }
 
+
+
     public class ReservationsCursorAdapter extends CursorAdapter {
         private Context context;
 
@@ -98,8 +100,17 @@ public class ReservationsListFragment extends ListFragment implements
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            final int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
             TextView begins = (TextView)view.findViewById(R.id.begins);
             begins.setText(cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS)));
+            Button deleteButton = (Button) view.findViewById(R.id.deleteReservationButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onDeleteReservation(reservationId);
+                }
+            });
+
         }
 
         @Override
@@ -110,11 +121,9 @@ public class ReservationsListFragment extends ListFragment implements
 
     }
 
+    // Tells the activity to delete through a headless fragment.
 
-/*    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent(this.mContext,BookDetailActivity.class);
-        intent.putExtra("id", (int) id);
-        startActivity(intent);
-    }*/
+    private void onDeleteReservation(int reservationId) {
+        ((BookDetailActivity) getActivity()).onStartDeleteReservationTask(reservationId);
+    }
 }
