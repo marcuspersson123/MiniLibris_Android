@@ -33,13 +33,13 @@ public class SyncDatabaseIntentService extends IntentService {
     }
 
     // Synchronizes the local database.
-    // Does its job if it was a valid cloud message, or a local syncAllTables request
+    // Does its job if it was a valid cloud message, or if the intent has the extra "START_SYNC".
     // Tries to synchronize only the latest changes.
     // Displays a notification and removes it
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isRegularCloudMessage(intent) || isStartSyncEvent(intent)) {
-            sendNotification("Minilibris syncAllTables");
+            this.sendNotification("MiniLibris Synchronizing");
             syncAllTables();
             this.removeNotification();
         }

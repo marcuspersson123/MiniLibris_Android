@@ -31,11 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
 public class CreateReservationTaskFragment extends TaskFragment {
 
     private static final String TAG = "ReserveFragment";
-    public static final String RESERVE_INTENT_SERVICE_READY = "reserve_intent_service_ready";
     private static final String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
     private String result;
 
@@ -68,17 +66,14 @@ public class CreateReservationTaskFragment extends TaskFragment {
         super(TAG);
     }
 
+    // Creates a JSON object that is POST:ed to the server.
+    // If an error occurred the "result" variable holds the message.
+    // If there is an array of errors, the first message will be in "result"
     public void doAsyncWork() {
         String result = null;
         String begins = getBegins();
         String ends = getEnds();
 
-      /*  Calendar calendar = Calendar.getInstance();
-        calendar.set(mYear, mMonth, mDay);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String begins = simpleDateFormat.format(calendar.getTime());
-        calendar.add(Calendar.DAY_OF_MONTH,20);
-        String ends = simpleDateFormat.format(calendar.getTime());*/
         try {
             JSONObject json = new JSONObject();
 
@@ -105,7 +100,6 @@ public class CreateReservationTaskFragment extends TaskFragment {
                 if (jsonString != null) {
                     try {
                         JSONObject jsonobject = new JSONObject(jsonString);
-                        //boolean serverSuccess = jsonobject.getBoolean("success");
                         if (jsonobject != null) {
                             JSONArray errors = jsonobject.optJSONArray("errors");
                             if (errors != null && errors.length()>0) {
@@ -133,9 +127,9 @@ public class CreateReservationTaskFragment extends TaskFragment {
         }
 
         this.result = result;
-
     }
 
+    // Returns the "ends" variable that is to be sent to the server
     private String getEnds() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(mYear, mMonth, mDay);
@@ -145,6 +139,7 @@ public class CreateReservationTaskFragment extends TaskFragment {
         return ends;
     }
 
+    // Returns the "begins" variable that is to be sent to the server
     private String getBegins() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(mYear, mMonth, mDay);

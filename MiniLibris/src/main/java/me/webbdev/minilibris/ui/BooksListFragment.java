@@ -19,11 +19,7 @@ import android.widget.*;
 
 class BooksListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    public static final String ARG_SECTION_NUMBER = "section_number";
+
     public SimpleCursorAdapter adapter;
     private Context mContext;
 
@@ -39,25 +35,25 @@ class BooksListFragment extends ListFragment implements
 
         return rootView;
     }
+
+    // Sets the list adapter and start the cursor loader.
     @Override
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
         ListView lv = this.getListView();
         lv.setOnItemClickListener(this);
-        fillData();
-    }
-
-    private void fillData() {
-        String[] from = new String[] { MiniLibrisContract.Books.TITLE };
-        int[] to = new int[] { android.R.id.text1};
+        String[] strings = new String[] { MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
+        int[] ids = new int[] { R.id.title, R.id.year};
 
         getLoaderManager().initLoader(0, null, this);
-        adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_book, null, from, to, 0);
+        adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_book, null, strings, ids, 0);
 
         setListAdapter(adapter);
     }
 
+    // Called when the loader is to be created.
+    // Fetches the interesting fields
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Books.ALL_FIELDS;

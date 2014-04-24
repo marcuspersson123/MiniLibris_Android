@@ -46,16 +46,18 @@ public class DeleteReservationTaskFragment extends TaskFragment {
     }
 
     public String getResult() {
-        return result;
+        return this.result;
     }
 
     public DeleteReservationTaskFragment(String TAG) {
         super(TAG);
     }
 
+    // Sends a registration id to be deleted to the server.
+    // The variables sent are in the URL (reservation id and mobile)
+    // After finishing, the "result" variable holds any error message or is null.
     public void doAsyncWork() {
-        //String result;
-
+        this.result = null;
         try {
             InputStream inputStream;
             HttpClient httpclient = new DefaultHttpClient();
@@ -68,40 +70,37 @@ public class DeleteReservationTaskFragment extends TaskFragment {
                 if (jsonString != null) {
                     try {
                         JSONObject jsonobject = new JSONObject(jsonString);
-                        //boolean serverSuccess = jsonobject.getBoolean("success");
                         if (jsonobject != null) {
                             if (!jsonobject.getBoolean("success")) {
                                 JSONObject validationContainer = jsonobject.optJSONObject("validationContainer");
                                 JSONArray errors = validationContainer.getJSONArray("errors");
                                 if (errors != null && errors.length() > 0) {
                                     JSONObject error = errors.getJSONObject(0);
-                                    result = error.getString("summary");
+                                    this.result = error.getString("summary");
                                 }
                             } else {
-                                result = null;
+                                this.result = null;
                             }
 
                         } else {
-                            result = "No JSON object";
+                            this.result = "No JSON object";
                         }
                     } catch (JSONException e) {
-                        result = "Malformed JSON object";
+                        this.result = "Malformed JSON object";
                     }
                 } else {
-                    result = "Malformed json string";
+                    this.result = "Malformed json string";
                 }
             } else {
-                result = "Non existing inputstream";
+                this.result = "Non existing inputstream";
             }
         } catch (ClientProtocolException e) {
             Log.e(TAG, "client protocol", e);
-            result = "Client protocol error";
+            this.result = "Client protocol error";
         } catch (IOException e) {
             Log.e(TAG, "io exception", e);
-            result = "IO Exception";
+            this.result = "IO Exception";
         }
-
-        //this.result = result;
 
     }
 

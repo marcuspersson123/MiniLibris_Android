@@ -254,8 +254,6 @@ public class MainActivity extends FragmentActivity {
         public ListFragment getItem(int position) {
             ListFragment fragment = new BooksListFragment();
             Bundle args = new Bundle();
-            args.putInt(BooksListFragment.ARG_SECTION_NUMBER, position + 1);
-            fragment.setArguments(args);
             return fragment;
         }
 
@@ -286,9 +284,6 @@ public class MainActivity extends FragmentActivity {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-//                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-//                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-
                 Log.e("minilibris", "play finns inte och skulle behöva hämtas");
                 finish();
 

@@ -2,14 +2,16 @@ package me.webbdev.minilibris.ui;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
+import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class BookDetailActivity extends Activity implements CreateReservationTaskFragment.TaskCallback {
+public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback {
 
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
@@ -94,12 +96,38 @@ public class BookDetailActivity extends Activity implements CreateReservationTas
         bookDetailFragment.onReservationFailed();
     }
 
+    private void startServerSynchronizing() {
+        // When testing on Shared network GCM rarely works. Update immediately.
+        Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
+        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+        startService(syncDatabaseIntent);
+    }
+
     @Override
     public void onPostExecute(String TAG) {
+        String fragmentMessage;
         if (TAG.equals(TAG_DELETE_RESERVATION_TASK_FRAGMENT)) {
-            Toast.makeText(this,mDeleteReservationTaskFragment.getResult(),Toast.LENGTH_LONG).show();
+            fragmentMessage = mDeleteReservationTaskFragment.getResult();
+            if (fragmentMessage != null) {
+                // Failed
+                Toast.makeText(this, fragmentMessage, Toast.LENGTH_LONG).show();
+            } else {
+                // When testing on Shared network GCM rarely works. Update immediately.
+                startServerSynchronizing();
+
+            }
         } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
-            bookDetailFragment.onReservationTaskFinished(mCreateReservationTaskFragment.getResult());
+            // When testing on Shared network GCM rarely works. Update immediately.
+            Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
+            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+            startService(syncDatabaseIntent);
+fragmentMessage = mCreateReservationTaskFragment.getResult();
+            if (fragmentMessage == null) {
+                // successfully created a reservation
+                // When testing on Shared network GCM rarely works. Update immediately.
+                startServerSynchronizing();
+            }
+            bookDetailFragment.onReservationTaskFinished(fragmentMessage);
         }
     }
 

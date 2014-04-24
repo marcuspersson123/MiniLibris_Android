@@ -30,7 +30,7 @@ public class BooksSynchronizer {
 
     // Synchronizes the table book.
     // returns the latest timestamp from the server if successful, or null
-    // If the no changes were made, returns true
+    // Also, if the no changes were made, returns the time stamp of the last server sync.
     Timestamp syncBooks(JSONArray booksArray) {
 
         try {

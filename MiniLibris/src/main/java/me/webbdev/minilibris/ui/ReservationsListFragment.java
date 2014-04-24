@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import me.webbdev.minilibris.R;
@@ -29,42 +30,32 @@ public class ReservationsListFragment extends ListFragment implements
     private Context mContext;
     private int bookId;
 
-
     public ReservationsListFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View rootView = inflater.inflate(R.layout.fragment_reservations_list,
                 container, false);
-
-
-
+        ListView lv = (ListView) rootView.findViewById(android.R.id.list);
+        TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
+        lv.setEmptyView(emptyText);
         return rootView;
     }
     @Override
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
-        //ListView lv = this.getListView();
-        //lv.setOnItemClickListener(this);
-
         bookId = getActivity().getIntent().getIntExtra("id", -1);
-        fillData();
-    }
-
-    private void fillData() {
         String[] from = new String[] { MiniLibrisContract.Reservations.BEGINS };
         int[] to = new int[] { R.id.begins};
-
         getLoaderManager().initLoader(0, null, this);
         adapter = new ReservationsCursorAdapter(mContext,null);
-
         setListAdapter(adapter);
     }
 
+    // Creates a loader for all reservations for this book.
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Reservations.ALL_FIELDS;
@@ -85,15 +76,13 @@ public class ReservationsListFragment extends ListFragment implements
         adapter.swapCursor(null);
     }
 
-
-
+    // The adapter that displays reservations.
     public class ReservationsCursorAdapter extends CursorAdapter {
         private Context context;
 
         LayoutInflater mInflater;
 
         public ReservationsCursorAdapter(Context context, Cursor c) {
-            // that constructor should be used with loaders.
             super(context, c, 0);
             mInflater = LayoutInflater.from(context);
         }
@@ -110,7 +99,6 @@ public class ReservationsListFragment extends ListFragment implements
                     onDeleteReservation(reservationId);
                 }
             });
-
         }
 
         @Override
@@ -122,7 +110,6 @@ public class ReservationsListFragment extends ListFragment implements
     }
 
     // Tells the activity to delete through a headless fragment.
-
     private void onDeleteReservation(int reservationId) {
         ((BookDetailActivity) getActivity()).onStartDeleteReservationTask(reservationId);
     }

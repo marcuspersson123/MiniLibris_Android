@@ -6,36 +6,21 @@ import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import android.util.Log;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 
+// Abstract class that takes care of
+// Invokes the subclass' "doAsyncWork()"
+// Thread safely ells the Activity onPreExecute, onProgressUpdate, onCancelled and onPostExecute.
+// The object gets started using "start()"
 public abstract class TaskFragment extends Fragment {
 
-
     private String TAG;
+
+    abstract void doAsyncWork();
 
     public TaskFragment(String TAG) {
         this.TAG = TAG;
@@ -45,26 +30,24 @@ public abstract class TaskFragment extends Fragment {
      * Callback interface through which the fragment will report the
      * task's progress and results back to the Activity.
      */
-    static interface TaskCallback {
+    public static interface TaskFragmentCallback {
         void onPreExecute(String TAG);
         void onProgressUpdate(String TAG,int percent);
         void onCancelled(String TAG);
         void onPostExecute(String TAG);
     }
 
-    private TaskCallback mTaskCallback;
+    private TaskFragmentCallback activity;
 
 
     /**
      * Hold a reference to the parent Activity so we can report the
-     * task's current progress and results. The Android framework
-     * will pass us a reference to the newly created Activity after
-     * each configuration change.
+     * task's current progress and results.
      */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mTaskCallback = (TaskCallback) activity;
+        this.activity = (TaskFragmentCallback) activity;
     }
 
     /**
@@ -80,6 +63,7 @@ public abstract class TaskFragment extends Fragment {
 
     }
 
+    // Starts the task
     public void start() {
         // Create and execute the background task.
         InnerTask innerTask = new InnerTask();
@@ -93,7 +77,7 @@ public abstract class TaskFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mTaskCallback = null;
+        this.activity = null;
     }
 
     /**
@@ -105,8 +89,8 @@ public abstract class TaskFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            if (mTaskCallback != null) {
-                mTaskCallback.onPreExecute(TAG);
+            if (TaskFragment.this.activity != null) {
+                TaskFragment.this.activity.onPreExecute(TAG);
             }
         }
 
@@ -118,26 +102,29 @@ public abstract class TaskFragment extends Fragment {
 
         @Override
         protected void onProgressUpdate(Integer... percent) {
-            if (mTaskCallback != null) {
-                mTaskCallback.onProgressUpdate(TAG,percent[0]);
+            if (TaskFragment.this.activity != null) {
+                TaskFragment.this.activity.onProgressUpdate(TAG,percent[0]);
             }
         }
 
         @Override
         protected void onCancelled() {
-            if (mTaskCallback != null) {
-                mTaskCallback.onCancelled(TAG);
+            if (TaskFragment.this.activity != null) {
+                TaskFragment.this.activity.onCancelled(TAG);
             }
         }
 
         @Override
         protected void onPostExecute(Void ignore) {
-            if (mTaskCallback != null) {
-                mTaskCallback.onPostExecute(TAG);
+            if (TaskFragment.this.activity != null) {
+                TaskFragment.this.activity.onPostExecute(TAG);
             }
         }
     }
 
+    // Converts an InputStream into a String.
+    // Returns a String or null.
+    // Stored here as it is commonly used in networking fragments.
     protected static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
@@ -152,7 +139,4 @@ public abstract class TaskFragment extends Fragment {
             return result;
         }
     }
-
-    abstract void doAsyncWork();
-
 }
