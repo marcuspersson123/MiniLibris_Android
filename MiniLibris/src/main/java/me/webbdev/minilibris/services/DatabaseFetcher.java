@@ -63,7 +63,7 @@ public class DatabaseFetcher {
 
     // Fetches a String from the server with raw json object
     // Returns null if not successful
-    private String fetchStringFromServer() {
+    private String fetchStringFromServer() throws IOException{
         String result = null;
         try {
             InputStream inputStream;
@@ -82,13 +82,11 @@ public class DatabaseFetcher {
             }
         } catch (ClientProtocolException e) {
             Log.e(TAG, "client protocol", e);
-        } catch (IOException e) {
-            Log.e(TAG, "io exception", e);
         }
         return result;
     }
 
-    public JSONObject fetchFromServer() {
+    public JSONObject fetchFromServer() throws IOException {
         String jsonString = fetchStringFromServer();
         if (jsonString != null) {
             try {

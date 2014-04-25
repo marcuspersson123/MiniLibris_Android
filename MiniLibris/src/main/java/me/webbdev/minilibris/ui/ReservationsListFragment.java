@@ -7,16 +7,12 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-//import android.support.v4.app.ListFragment;
-//import android.support.v4.app.LoaderManager;
-//import android.support.v4.content.CursorLoader;
-//import android.support.v4.content.Loader;
-//import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,10 +44,8 @@ public class ReservationsListFragment extends ListFragment implements
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
         bookId = getActivity().getIntent().getIntExtra("id", -1);
-        String[] from = new String[] { MiniLibrisContract.Reservations.BEGINS };
-        int[] to = new int[] { R.id.begins};
         getLoaderManager().initLoader(0, null, this);
-        adapter = new ReservationsCursorAdapter(mContext,null);
+        adapter = new ReservationsCursorAdapter(getActivity(),null);
         setListAdapter(adapter);
     }
 
@@ -82,18 +76,20 @@ public class ReservationsListFragment extends ListFragment implements
 
         LayoutInflater mInflater;
 
-        public ReservationsCursorAdapter(Context context, Cursor c) {
-            super(context, c, 0);
+        public ReservationsCursorAdapter(Context context, Cursor cursor) {
+            super(context, cursor, 0);
             mInflater = LayoutInflater.from(context);
         }
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             final int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
-            TextView begins = (TextView)view.findViewById(R.id.begins);
-            begins.setText(cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS)));
-            Button deleteButton = (Button) view.findViewById(R.id.deleteReservationButton);
-            deleteButton.setOnClickListener(new View.OnClickListener() {
+            TextView timespanTextView = (TextView)view.findViewById(R.id.timespanTextView);
+            String begins = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS));
+            String ends = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
+            timespanTextView.setText(begins + " to " + ends);
+            ImageButton deleteImageButton = (ImageButton) view.findViewById(R.id.deleteReservationImageButton);
+            deleteImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     onDeleteReservation(reservationId);

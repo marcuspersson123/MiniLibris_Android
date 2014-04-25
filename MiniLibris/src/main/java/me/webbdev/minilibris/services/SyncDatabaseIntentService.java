@@ -7,15 +7,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.util.Log;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.webbdev.minilibris.ui.MainActivity;
@@ -24,7 +26,9 @@ import me.webbdev.minilibris.ui.MainActivity;
 public class SyncDatabaseIntentService extends IntentService {
 
     private static final String TAG = "SyncDatabaseIntentService";
-    public static final int NOTIFICATION_ID = 1;
+    public static final int SYNCHRONIZING_NOTIFICATION_ID = 1;
+    public static final int SERVER_FAIL_NOTIFICATION_ID = 2;
+    public static final int INTERNET_FAIL_NOTIFICATION_ID = 3;
     private static final String url = "http://minilibris.webbdev.me/minilibris/api/databaseChanges";
     public static final String START_SYNC = "start_sync";
 
@@ -39,20 +43,52 @@ public class SyncDatabaseIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (isRegularCloudMessage(intent) || isStartSyncEvent(intent)) {
-            this.sendNotification("MiniLibris Synchronizing");
-            syncAllTables();
-            this.removeNotification();
+            // Try to determine internet connectivity. It is not possible to do that reliably. An IOException will probably be the result.
+            if (isNetworkConnected()) {
+                this.removeNotification(INTERNET_FAIL_NOTIFICATION_ID);
+                this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synchronizing database");
+                boolean success = false;
+                try {
+                    success = syncAllTables();
+                    if (success) {
+                        this.removeNotification(SERVER_FAIL_NOTIFICATION_ID);
+                    } else {
+                        this.showNotification(SERVER_FAIL_NOTIFICATION_ID, "Failed to synchronize");
+                    }
+                } catch (IOException e) {
+                    this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "No connection to MiniLibris server");
+                }
+
+                this.removeNotification(SYNCHRONIZING_NOTIFICATION_ID);
+            } else {
+                this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Not connected to the Internet");
+            }
         }
 
         CloudBroadcastReceiver.completeWakefulIntent(intent);
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] info = cm.getAllNetworkInfo();
+        if (info == null) {
+            // There are no active networks.
+            return false;
+        } else if (info != null)
+            for (int i = 0; i < info.length; i++) {
+                if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                    return true;
+                }
+            }
+        return false;
+    }
+
     // Removes the notification that was set at the beginning
-    private void removeNotification() {
+    private void removeNotification(int notificationId) {
         NotificationManager notificationManager;
         notificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFICATION_ID);
+        notificationManager.cancel(notificationId);
     }
 
     private boolean isStartSyncEvent(Intent intent) {
@@ -77,7 +113,7 @@ public class SyncDatabaseIntentService extends IntentService {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void sendNotification(String msg) {
+    private void showNotification(int notificationId, String msg) {
         NotificationManager notificationManager;
         notificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -87,18 +123,25 @@ public class SyncDatabaseIntentService extends IntentService {
 
         Notification.Builder mBuilder =
                 new Notification.Builder(this)
-                        .setSmallIcon(android.R.drawable.ic_popup_sync)
                         .setContentTitle("MiniLibris")
                         .setStyle(new Notification.BigTextStyle().bigText(msg))
                         .setContentText(msg);
 
+        switch (notificationId) {
+            case SYNCHRONIZING_NOTIFICATION_ID:
+                mBuilder.setSmallIcon(android.R.drawable.ic_popup_sync);
+                break;
+            default:
+                mBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                break;
+        }
         mBuilder.setContentIntent(contentIntent);
-        notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        notificationManager.notify(notificationId, mBuilder.build());
     }
 
     // Synchronises rows from all tables
     // Returns true if all tables where synchronized
-    public boolean syncAllTables() {
+    public boolean syncAllTables() throws IOException {
         DatabaseFetcher databaseSyncer = new DatabaseFetcher(this.getApplicationContext());
         databaseSyncer.setUrl(url);
 
@@ -114,37 +157,36 @@ public class SyncDatabaseIntentService extends IntentService {
         JSONObject jsonObject = databaseSyncer.fetchFromServer();
         if (jsonObject != null) {
 
-                JSONArray books = jsonObject.optJSONArray("books");
-                JSONArray reservations = jsonObject.optJSONArray("reservations");
+            JSONArray books = jsonObject.optJSONArray("books");
+            JSONArray reservations = jsonObject.optJSONArray("reservations");
 
-                if (books == null || reservations == null) {
-                    Log.e(TAG, "The server responded without all tables");
-                    return false;
-                }
+            if (books == null || reservations == null) {
+                Log.e(TAG, "The server responded without all tables");
+                return false;
+            }
 
-                Timestamp lastServerSync = databaseSyncer.getLastSuccessfulSync();
-                BooksSynchronizer booksSynchronizer = new BooksSynchronizer(this);
-                Timestamp booksServerSync = booksSynchronizer.syncBooks(books);
-                if (booksServerSync == null) {
-                    Log.e(TAG, "could not sync books table");
-                    return false;
-                }
-                if (booksServerSync.after(lastServerSync)) {
-                    lastServerSync = booksServerSync;
-                }
-                ReservationsSynchronizer reservationsSynchronizer = new ReservationsSynchronizer(this);
-                Timestamp reservationsServerSync = reservationsSynchronizer.syncReservations(reservations);
-                if (reservationsServerSync == null) {
-                    Log.e(TAG, "could not sync reservations table");
-                    return false;
-                }
-                if (reservationsServerSync.after(lastServerSync)) {
-                    lastServerSync = reservationsServerSync;
-                }
-                databaseSyncer.setLastSuccessfulSync(lastServerSync);
+            Timestamp lastServerSync = databaseSyncer.getLastSuccessfulSync();
+            BooksSynchronizer booksSynchronizer = new BooksSynchronizer(this);
+            Timestamp booksServerSync = booksSynchronizer.syncBooks(books);
+            if (booksServerSync == null) {
+                Log.e(TAG, "could not sync books table");
+                return false;
+            }
+            if (booksServerSync.after(lastServerSync)) {
+                lastServerSync = booksServerSync;
+            }
+            ReservationsSynchronizer reservationsSynchronizer = new ReservationsSynchronizer(this);
+            Timestamp reservationsServerSync = reservationsSynchronizer.syncReservations(reservations);
+            if (reservationsServerSync == null) {
+                Log.e(TAG, "could not sync reservations table");
+                return false;
+            }
+            if (reservationsServerSync.after(lastServerSync)) {
+                lastServerSync = reservationsServerSync;
+            }
+            databaseSyncer.setLastSuccessfulSync(lastServerSync);
 
-                return true;
-
+            return true;
 
 
         }

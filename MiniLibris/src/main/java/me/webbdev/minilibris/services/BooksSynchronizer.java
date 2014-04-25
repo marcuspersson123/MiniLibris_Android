@@ -15,9 +15,6 @@ import java.sql.Timestamp;
 
 import me.webbdev.minilibris.database.MiniLibrisContract;
 
-/**
- * Created by marcusssd on 2014-04-22.
- */
 public class BooksSynchronizer {
 
     Context context;
@@ -59,6 +56,9 @@ public class BooksSynchronizer {
                         success = deleteBook(book);
                     }
                 }
+                if (cursor != null) {
+                    cursor.close();
+                }
                 if (!success) {
                     break;
                 }
@@ -93,7 +93,7 @@ public class BooksSynchronizer {
             }
 
         } catch (JSONException e) {
-            Log.e(TAG, "deletebook", e);
+            Log.e(TAG, "JSon Exception when deleting book", e);
             success = false;
         }
 
@@ -131,7 +131,7 @@ public class BooksSynchronizer {
             }
 
         } catch (JSONException e) {
-            Log.e(TAG, "update book", e);
+            Log.e(TAG, "Json exception in update book", e);
             success = false;
         }
 
@@ -167,7 +167,7 @@ public class BooksSynchronizer {
             success = true;
 
         } catch (JSONException e) {
-            Log.e(TAG, "insert book", e);
+            Log.e(TAG, "Json exception when inserting book", e);
             success = false;
         }
 

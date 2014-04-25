@@ -17,15 +17,23 @@ import me.webbdev.minilibris.database.*;
 
 public class BookDetailFragment extends Fragment implements View.OnClickListener {
     private TextView titleTextView;
-    private Button reserveButton;
+    private ImageButton reserveImageButton;
     private long book_id;
+    private TextView authorTextView;
+    private TextView yearTextView;
+    private TextView publisherTextView;
+    private ImageView bookImageView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_detail, container, false);
         this.titleTextView = (TextView) view.findViewById(R.id.titleTextView);
-        this.reserveButton = (Button) view.findViewById(R.id.reserveButton);
+        this.authorTextView = (TextView) view.findViewById(R.id.authorTextView);
+        this.yearTextView = (TextView) view.findViewById(R.id.yearTextView);
+        this.publisherTextView = (TextView) view.findViewById(R.id.publisherTextView);
+        this.bookImageView = (ImageView) view.findViewById(R.id.bookImageView);
+        this.reserveImageButton = (ImageButton) view.findViewById(R.id.reserveImageButton);
         return view;
     }
 
@@ -33,7 +41,7 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
 
-        this.reserveButton.setOnClickListener(this);
+        this.reserveImageButton.setOnClickListener(this);
          book_id = getActivity().getIntent().getIntExtra("id", -1);
 
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, book_id);
@@ -41,14 +49,20 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
         if (cursor.getCount()>0) {
             cursor.moveToFirst();
             String title = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.TITLE));
+            String author = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.AUTHOR));
+            int year = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Books.YEAR));
+            String publisher = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.PUBLISHER));
             this.titleTextView.setText(title);
+            this.authorTextView.setText(author);
+            this.yearTextView.setText(String.valueOf(year));
+            this.publisherTextView.setText(publisher);
         }
     }
 
     // The user clicked on the reserve-button. A Datepicker gets displayed.
     @Override
     public void onClick(View view) {
-        if (view == this.reserveButton) {
+        if (view == this.reserveImageButton) {
             DialogFragment newFragment = new DatePickerFragment();
             newFragment.show(getActivity().getFragmentManager(), "datePicker");
         }
@@ -56,19 +70,19 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
 
     // Event when a reservation is to be sent from headless fragment.
     public void onStartingReservation() {
-        this.reserveButton.setEnabled(false);
+        this.reserveImageButton.setEnabled(false);
     }
 
     // Event when a reservation failed due to IO or server error in the headless fragment.
     public void onReservationFailed() {
-        this.reserveButton.setEnabled(true);
+        this.reserveImageButton.setEnabled(true);
         Toast.makeText(getActivity(), "Error trying to reserve!",Toast.LENGTH_LONG).show();
     }
 
     // Triggered when the headless fragment communicated with the server.
     // If a message, then an error occurred.
     public void onReservationTaskFinished(String errorMessage) {
-        this.reserveButton.setEnabled(true);
+        this.reserveImageButton.setEnabled(true);
         if (errorMessage != null) {
             Toast.makeText(getActivity(), errorMessage,Toast.LENGTH_LONG).show();
         } else {

@@ -64,33 +64,15 @@ public class ReservationsSynchronizer {
                         deleteReservation(reservationId);
                     }
                 }
+                if (cursor != null) {
+                    cursor.close();
+                }
                 if (!success) {
                     break;
                 }
 
             }
             if (success) {
-                /*Uri allUri = MiniLibrisContract.Reservations.CONTENT_URI;
-                Cursor cursor = this.context.getContentResolver().query(allUri, MiniLibrisContract.Reservations.ALL_FIELDS, null, null, null);
-                while (cursor.moveToNext()) {
-                    String ends = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    try {
-                        Date endsDate = simpleDateFormat.parse(ends);
-                        Date today = Calendar.getInstance().getTime();
-                        if (endsDate.before(today)) {
-                            boolean is_lent = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations.IS_LENT)) > 0;
-                            if (!is_lent) {
-                                int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
-                                deleteReservation(reservationId);
-                            }
-                        }
-                    } catch (ParseException e) {
-                        Log.e(TAG, "could not parse date in syncReservations", e);
-                    }
-
-
-                }*/
                 return lastServerSync;
             } else {
                 return null;
@@ -105,7 +87,6 @@ public class ReservationsSynchronizer {
 
     private boolean deleteReservation(int reservationId) {
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Reservations.CONTENT_URI, reservationId);
-        Log.e(TAG, "delete reseveration-uri: " + singleUri);
         int deleteCount = this.context.getContentResolver().delete(singleUri, null, null);
         if (deleteCount < 1) {
             return false;
@@ -117,11 +98,8 @@ public class ReservationsSynchronizer {
 
     private boolean updateReservation(int reservationId, JSONObject jsonObject) {
         ContentValues contentValues = this.getContentValues(jsonObject);
-
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Reservations.CONTENT_URI, reservationId);
         int updatedCount = this.context.getContentResolver().update(singleUri, contentValues, null, null);
-        Log.e(TAG, "update reservation -uri: " + singleUri);
-
         return updatedCount>0;
     }
 
@@ -132,7 +110,6 @@ public class ReservationsSynchronizer {
         ContentValues contentValues = this.getContentValues(jsonObject);
         if (contentValues!=null) {
             Uri todoUri = this.context.getContentResolver().insert(MiniLibrisContract.Reservations.CONTENT_URI, contentValues);
-            Log.e(TAG, "insert reservation-uri: " + todoUri);
             boolean success = todoUri.getPathSegments().size() > 0;
             return success;
         }

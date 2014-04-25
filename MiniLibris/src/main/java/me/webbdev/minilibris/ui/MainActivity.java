@@ -60,21 +60,22 @@ public class MainActivity extends FragmentActivity {
         outState.putString("dummy", "dummy");
 
     }
+
+    // On create
+    // When the app is first started, synchronizes with the MiniLibris database.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            Log.e(TAG, "app startup");
+            // App is created.
+            // Synchronize the database
             Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
             syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
             startService(syncDatabaseIntent);
-
-        } else {
-            Log.e(TAG, "orientation change");
         }
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -241,10 +242,10 @@ public class MainActivity extends FragmentActivity {
 
 
     /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
+     * This adapter returns a fragment corresponding to
+     * one of the sections.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -252,15 +253,21 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public ListFragment getItem(int position) {
-            ListFragment fragment = new BooksListFragment();
-            Bundle args = new Bundle();
+            ListFragment fragment = null;
+            switch (position) {
+                case 0:
+                    // show all books
+                fragment = new BooksListFragment(null, null);
+                case 1:
+                    // show reserved books
+                    fragment = new BooksListFragment("where ")
+            }
             return fragment;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 4;
+            return 3;
         }
 
         @Override
@@ -270,11 +277,9 @@ public class MainActivity extends FragmentActivity {
                 case 0:
                     return getString(R.string.title_section1).toUpperCase(l);
                 case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
                     return getString(R.string.title_section3).toUpperCase(l);
-                case 3:
-                    return getString(R.string.title_section4).toUpperCase(l);
+                case 2:
+                    return getString(R.string.title_section2).toUpperCase(l);
             }
             return null;
         }

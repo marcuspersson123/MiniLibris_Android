@@ -20,10 +20,15 @@ import android.widget.*;
 class BooksListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
 
+    private final String whereClause;
+    private final String[] whereClauseVariables;
     public SimpleCursorAdapter adapter;
     private Context mContext;
 
-    public BooksListFragment() {
+
+    public BooksListFragment(String whereClause, String[] whereClauseVariables) {
+        this.whereClause = whereClause;
+        this.whereClauseVariables = whereClauseVariables;
     }
 
     @Override
@@ -43,11 +48,11 @@ class BooksListFragment extends ListFragment implements
         mContext = this.getActivity().getApplicationContext();
         ListView lv = this.getListView();
         lv.setOnItemClickListener(this);
-        String[] strings = new String[] { MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
-        int[] ids = new int[] { R.id.title, R.id.year};
+        String[] databaseFields = new String[] { MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
+        int[] databaseFieldsToIds = new int[] { R.id.title, R.id.year};
 
         getLoaderManager().initLoader(0, null, this);
-        adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_book, null, strings, ids, 0);
+        adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_book, null, databaseFields, databaseFieldsToIds, 0);
 
         setListAdapter(adapter);
     }
@@ -56,9 +61,9 @@ class BooksListFragment extends ListFragment implements
     // Fetches the interesting fields
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = MiniLibrisContract.Books.ALL_FIELDS;
+        String[] databaseFields = new String[] { MiniLibrisContract.Books._ID, MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
         CursorLoader cursorLoader = new CursorLoader( mContext,
-                MiniLibrisContract.Books.CONTENT_URI, projection, null, null, null);
+                MiniLibrisContract.Books.CONTENT_URI, databaseFields, whereClause, whereClauseVariables, null);
         return cursorLoader;
     }
 

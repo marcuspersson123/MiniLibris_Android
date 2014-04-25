@@ -19,7 +19,6 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     private static final String TAG_DELETE_RESERVATION_TASK_FRAGMENT = "2";
     private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
 
-    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +82,6 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
             bookDetailFragment.onStartingReservation();
         }
-
     }
 
     @Override
@@ -99,7 +97,7 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     private void startServerSynchronizing() {
         // When testing on Shared network GCM rarely works. Update immediately.
         Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
         startService(syncDatabaseIntent);
     }
 
@@ -119,9 +117,9 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
             // When testing on Shared network GCM rarely works. Update immediately.
             Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
             startService(syncDatabaseIntent);
-fragmentMessage = mCreateReservationTaskFragment.getResult();
+            fragmentMessage = mCreateReservationTaskFragment.getResult();
             if (fragmentMessage == null) {
                 // successfully created a reservation
                 // When testing on Shared network GCM rarely works. Update immediately.
