@@ -7,6 +7,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -30,6 +33,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import me.webbdev.minilibris.R;
 
 public class CreateReservationTaskFragment extends TaskFragment {
 
@@ -62,8 +67,17 @@ public class CreateReservationTaskFragment extends TaskFragment {
     private int mMonth;
     private int mDay;
 
-    public CreateReservationTaskFragment(String TAG) {
-        super(TAG);
+    public CreateReservationTaskFragment() {
+        super();
+    }
+
+    // This is an invisible fragment. However, to be able to instantiate it in xml it has to return a view.
+    // Returns an empty LinearLayout
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.empty,
+                container, false);
     }
 
     // Creates a JSON object that is POST:ed to the server.

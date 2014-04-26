@@ -12,5 +12,7 @@
     <string name="select_reservation_date_title">Reservera från</string>
     <string name="reservations_header">Reservationer</string>
     <string name="no_reservations">(inga reservationer)</string>
+    <string name="title_activity_login">Logga in</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

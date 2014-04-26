@@ -15,8 +15,8 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
 
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
-    private static final String TAG_CREATE_RESERVATION_TASK_FRAGMENT = "1";
-    private static final String TAG_DELETE_RESERVATION_TASK_FRAGMENT = "2";
+//    private static final String TAG_CREATE_RESERVATION_TASK_FRAGMENT = "1";
+//    private static final String TAG_DELETE_RESERVATION_TASK_FRAGMENT = "2";
     private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
 
     @Override
@@ -25,23 +25,26 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
 
         setContentView(R.layout.activity_book_detail);
 
-        this.bookDetailFragment = (BookDetailFragment) this.getFragmentManager().findFragmentById(R.id.bookDetailFragment);
-        FragmentManager fm = getFragmentManager();
-        mCreateReservationTaskFragment = (CreateReservationTaskFragment) fm.findFragmentByTag(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
+        FragmentManager fragmentManager = getFragmentManager();
+        this.bookDetailFragment = (BookDetailFragment) fragmentManager.findFragmentById(R.id.bookDetailFragment);
+        mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentById(R.id.createReservationTaskFragment);
+        mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentById(R.id.deleteReservationTaskFragment);
+
+       /* mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentByTag(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
         if (mCreateReservationTaskFragment == null) {
             mCreateReservationTaskFragment = new CreateReservationTaskFragment(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
-            fm.beginTransaction().add(mCreateReservationTaskFragment, TAG_CREATE_RESERVATION_TASK_FRAGMENT).commit();
-        }
+            fragmentManager.beginTransaction().add(mCreateReservationTaskFragment, TAG_CREATE_RESERVATION_TASK_FRAGMENT).commit();
+        }*/
 
-        mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fm.findFragmentByTag(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
+/*        mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentByTag(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
         if (mDeleteReservationTaskFragment == null) {
             mDeleteReservationTaskFragment = new DeleteReservationTaskFragment(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
-            fm.beginTransaction().add(mDeleteReservationTaskFragment, TAG_DELETE_RESERVATION_TASK_FRAGMENT).commit();
-        }
+            fragmentManager.beginTransaction().add(mDeleteReservationTaskFragment, TAG_DELETE_RESERVATION_TASK_FRAGMENT).commit();
+        }*/
 
     }
 
@@ -76,22 +79,31 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     }
 
     @Override
-    public void onPreExecute(String TAG) {
-        if (TAG.equals(TAG_DELETE_RESERVATION_TASK_FRAGMENT)) {
-
-        } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
-            bookDetailFragment.onStartingReservation();
+    public void onPreExecute(int fragmentId) {
+        switch (fragmentId) {
+            case R.id.deleteReservationTaskFragment:
+                break;
+            case R.id.createReservationTaskFragment:
+                bookDetailFragment.onStartingReservation();
+                break;
         }
     }
 
     @Override
-    public void onProgressUpdate(String TAG, int percent) {
+    public void onProgressUpdate(int fragmentId, int percent) {
 
     }
 
     @Override
-    public void onCancelled(String TAG) {
-        bookDetailFragment.onReservationFailed();
+    public void onCancelled(int fragmentId) {
+        switch (fragmentId) {
+            case R.id.deleteReservationTaskFragment:
+                break;
+            case R.id.createReservationTaskFragment:
+                bookDetailFragment.onReservationFailed();
+                break;
+        }
+
     }
 
     private void startServerSynchronizing() {
@@ -102,30 +114,34 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     }
 
     @Override
-    public void onPostExecute(String TAG) {
+    public void onPostExecute(int fragmentId) {
         String fragmentMessage;
-        if (TAG.equals(TAG_DELETE_RESERVATION_TASK_FRAGMENT)) {
-            fragmentMessage = mDeleteReservationTaskFragment.getResult();
-            if (fragmentMessage != null) {
-                // Failed
-                Toast.makeText(this, fragmentMessage, Toast.LENGTH_LONG).show();
-            } else {
-                // When testing on Shared network GCM rarely works. Update immediately.
-                startServerSynchronizing();
 
-            }
-        } else if (TAG.equals(TAG_CREATE_RESERVATION_TASK_FRAGMENT)) {
-            // When testing on Shared network GCM rarely works. Update immediately.
-            Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
-            startService(syncDatabaseIntent);
-            fragmentMessage = mCreateReservationTaskFragment.getResult();
-            if (fragmentMessage == null) {
-                // successfully created a reservation
+        switch (fragmentId) {
+            case R.id.deleteReservationTaskFragment:
+                fragmentMessage = mDeleteReservationTaskFragment.getResult();
+                if (fragmentMessage != null) {
+                    // Failed
+                    Toast.makeText(this, fragmentMessage, Toast.LENGTH_LONG).show();
+                } else {
+                    // When testing on Shared network GCM rarely works. Update immediately.
+                    startServerSynchronizing();
+
+                }
+                break;
+            case R.id.createReservationTaskFragment:
                 // When testing on Shared network GCM rarely works. Update immediately.
-                startServerSynchronizing();
-            }
-            bookDetailFragment.onReservationTaskFinished(fragmentMessage);
+                Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
+                syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
+                startService(syncDatabaseIntent);
+                fragmentMessage = mCreateReservationTaskFragment.getResult();
+                if (fragmentMessage == null) {
+                    // successfully created a reservation
+                    // When testing on Shared network GCM rarely works. Update immediately.
+                    startServerSynchronizing();
+                }
+                bookDetailFragment.onReservationTaskFinished(fragmentMessage);
+                break;
         }
     }
 

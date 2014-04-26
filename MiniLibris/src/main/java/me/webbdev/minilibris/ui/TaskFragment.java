@@ -18,23 +18,18 @@ import java.io.InputStreamReader;
 // The object gets started using "start()"
 public abstract class TaskFragment extends Fragment {
 
-    private String TAG;
 
     abstract void doAsyncWork();
-
-    public TaskFragment(String TAG) {
-        this.TAG = TAG;
-    }
 
     /**
      * Callback interface through which the fragment will report the
      * task's progress and results back to the Activity.
      */
     public static interface TaskFragmentCallback {
-        void onPreExecute(String TAG);
-        void onProgressUpdate(String TAG,int percent);
-        void onCancelled(String TAG);
-        void onPostExecute(String TAG);
+        void onPreExecute(int fragmentId);
+        void onProgressUpdate(int fragmentId,int percent);
+        void onCancelled(int fragmentId);
+        void onPostExecute(int fragmentId);
     }
 
     private TaskFragmentCallback activity;
@@ -90,7 +85,7 @@ public abstract class TaskFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             if (TaskFragment.this.activity != null) {
-                TaskFragment.this.activity.onPreExecute(TAG);
+                TaskFragment.this.activity.onPreExecute(getId());
             }
         }
 
@@ -103,21 +98,21 @@ public abstract class TaskFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Integer... percent) {
             if (TaskFragment.this.activity != null) {
-                TaskFragment.this.activity.onProgressUpdate(TAG,percent[0]);
+                TaskFragment.this.activity.onProgressUpdate(getId(),percent[0]);
             }
         }
 
         @Override
         protected void onCancelled() {
             if (TaskFragment.this.activity != null) {
-                TaskFragment.this.activity.onCancelled(TAG);
+                TaskFragment.this.activity.onCancelled(getId());
             }
         }
 
         @Override
         protected void onPostExecute(Void ignore) {
             if (TaskFragment.this.activity != null) {
-                TaskFragment.this.activity.onPostExecute(TAG);
+                TaskFragment.this.activity.onPostExecute(getId());
             }
         }
     }
