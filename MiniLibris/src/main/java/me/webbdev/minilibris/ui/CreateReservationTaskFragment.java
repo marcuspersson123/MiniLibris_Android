@@ -33,7 +33,7 @@ import java.io.InputStreamReader;
 
 public class CreateReservationTaskFragment extends TaskFragment {
 
-    private static final String TAG = "ReserveFragment";
+    private static final String TAG = "CreateReservationTaskFragment";
     private static final String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
     private String result;
 
@@ -103,7 +103,9 @@ public class CreateReservationTaskFragment extends TaskFragment {
                         if (jsonobject != null) {
                             JSONArray errors = jsonobject.optJSONArray("errors");
                             if (errors != null && errors.length()>0) {
-                                result = "Not allowed";
+                                JSONObject error = errors.optJSONObject(0);
+                                String summary = error.getString("summary");
+                                result = summary;
                             }
 
                         }

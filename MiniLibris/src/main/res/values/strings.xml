@@ -2,12 +2,15 @@
 <resources>
 
     <string name="app_name">MiniLibris</string>
-    <string name="action_settings">Settings</string>
-    <string name="title_section1">All books</string>
-    <string name="title_section2">Lent</string>
-    <string name="title_section3">Reserved</string>
-    <string name="title_section4">Contact</string>
-    <string name="title_activity_book_detail">Book details</string>
-    <string name="short_text">\"A short text\"</string><string name="reserve_button_text">Reserve...</string><string name="sample_title">The Sample Book</string>
+    <string name="action_settings">Inställningar</string>
+    <string name="all_books">Alla böcker</string>
+    <string name="lent_books">Lånade</string>
+    <string name="reserved_books">Reserverade</string>
+    <string name="title_activity_book_detail">Information om boken</string>
+    <string name="short_text">\"A short text\"</string>
+    <string name="sample_title">The Sample Book</string>
+    <string name="select_reservation_date_title">Reservera från</string>
+    <string name="reservations_header">Reservationer</string>
+    <string name="no_reservations">(inga reservationer)</string>
 
 </resources>

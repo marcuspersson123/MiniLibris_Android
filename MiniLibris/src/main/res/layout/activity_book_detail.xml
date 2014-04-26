@@ -8,7 +8,8 @@
 
     <fragment
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:name="me.webbdev.minilibris.ui.BookDetailFragment"
         android:id="@+id/bookDetailFragment"
         android:layout_marginLeft="5dp"
@@ -17,8 +18,8 @@
 
     <fragment
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_height="150dp"
+
         android:name="me.webbdev.minilibris.ui.ReservationsListFragment"
         android:id="@+id/reservationsListFragment"
         tools:layout="@layout/fragment_reservations_list" />

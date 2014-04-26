@@ -22,6 +22,7 @@ public class MiniLibrisContentProvider extends ContentProvider {
     private static final int BOOK_ID = 11;
     private static final int RESERVATIONS = 20;
     private static final int RESERVATION_ID = 21;
+    private static final int USER_BOOKS_ID = 30;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(
             UriMatcher.NO_MATCH);
@@ -36,6 +37,9 @@ public class MiniLibrisContentProvider extends ContentProvider {
                 MiniLibrisContract.Reservations.BASE_PATH, RESERVATIONS);
         sURIMatcher.addURI(MiniLibrisContract.AUTHORITY,
                 MiniLibrisContract.Reservations.BASE_PATH + "/#", RESERVATION_ID);
+        // The uri does not match a table. This is just a selector to get books that are reserved by a user.
+        sURIMatcher.addURI(MiniLibrisContract.AUTHORITY,
+                MiniLibrisContract.UserBooks.BASE_PATH + "/#", USER_BOOKS_ID);
     }
 
     // Create and store a databaseHelper helper.
@@ -50,6 +54,7 @@ public class MiniLibrisContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
+        String groupBy = null;
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
@@ -71,13 +76,27 @@ public class MiniLibrisContentProvider extends ContentProvider {
                 queryBuilder.appendWhere(MiniLibrisContract.Reservations._ID + "="
                         + uri.getLastPathSegment());
                 break;
+            case USER_BOOKS_ID:
+                // SELECT * FROM reservations INNER  JOIN books ON reservations.book_id=books.book_id where reservations.user_id=3 GROUP BY books.book_id
+
+                String booksTableName = MiniLibrisContract.Books.BASE_PATH;
+                String reservationsTableName = MiniLibrisContract.Reservations.BASE_PATH;
+                groupBy = booksTableName+"."+MiniLibrisContract.Books._ID;
+                String setTablesString = reservationsTableName + " inner join " + booksTableName + " on " + reservationsTableName + "." + MiniLibrisContract.Reservations.BOOK_ID + "=" + booksTableName + "." + MiniLibrisContract.Books._ID;
+                queryBuilder.setTables(setTablesString);
+                String whereClause = reservationsTableName + "." + MiniLibrisContract.Reservations.USER_ID + "="
+                        + uri.getLastPathSegment();
+                queryBuilder.appendWhere(whereClause);
+                // The querybuilder will also add the "selection"-variable in the where clause below.
+
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
 
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
         Cursor cursor = queryBuilder.query(db, projection, selection,
-                selectionArgs, null, null, sortOrder);
+                selectionArgs, groupBy, null, sortOrder);
         // notify potential listeners
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -106,9 +125,13 @@ public class MiniLibrisContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        Uri itemUri = ContentUris.withAppendedId(uri, id);
-        getContext().getContentResolver().notifyChange(itemUri, null);
-        return itemUri;
+        Uri notifyUri = ContentUris.withAppendedId(uri, id);
+        getContext().getContentResolver().notifyChange(notifyUri, null);
+
+            Uri notifyUserBooks = MiniLibrisContract.UserBooks.CONTENT_URI;
+            getContext().getContentResolver().notifyChange(notifyUserBooks, null);
+
+        return notifyUri;
     }
 
     // Deletes one (or more) record in one of the tables. Returns number of deleted rows.
@@ -151,7 +174,13 @@ public class MiniLibrisContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (rowsDeleted>0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+
+                Uri notifyUserBooks = MiniLibrisContract.UserBooks.CONTENT_URI;
+                getContext().getContentResolver().notifyChange(notifyUserBooks, null);
+
+        }
         return rowsDeleted;
     }
 
@@ -199,7 +228,12 @@ public class MiniLibrisContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (rowsUpdated>0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+            Uri notifyUserBooks = MiniLibrisContract.UserBooks.CONTENT_URI;
+            getContext().getContentResolver().notifyChange(notifyUserBooks, null);
+
+        }
         return rowsUpdated;
     }
 

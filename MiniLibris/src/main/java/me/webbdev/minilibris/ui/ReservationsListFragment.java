@@ -35,8 +35,10 @@ public class ReservationsListFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.fragment_reservations_list,
                 container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
-        TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
-        lv.setEmptyView(emptyText);
+        //TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
+        // lv.setEmptyView(emptyText);
+//        View header = inflater.inflate(R.layout.fragment_reservations_list_header, null);
+//        lv.setHe
         return rootView;
     }
     @Override
@@ -53,7 +55,7 @@ public class ReservationsListFragment extends ListFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Reservations.ALL_FIELDS;
-        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ?";
+        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ? and is_lent=0";
         String[] whereVariables = new String[]{String.valueOf(this.bookId)};
         CursorLoader cursorLoader = new CursorLoader( mContext,
                 MiniLibrisContract.Reservations.CONTENT_URI, projection, whereClause , whereVariables, null);
@@ -87,7 +89,7 @@ public class ReservationsListFragment extends ListFragment implements
             TextView timespanTextView = (TextView)view.findViewById(R.id.timespanTextView);
             String begins = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS));
             String ends = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
-            timespanTextView.setText(begins + " to " + ends);
+            timespanTextView.setText("Från "+begins + " till " + ends);
             ImageButton deleteImageButton = (ImageButton) view.findViewById(R.id.deleteReservationImageButton);
             deleteImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override

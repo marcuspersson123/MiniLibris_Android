@@ -3,17 +3,23 @@
     android:layout_width="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:layout_height="match_parent">
-
+    android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/reservations_header" android:gravity="center" android:textStyle="bold"
+        >
+    </TextView>
     <ListView
         android:id="@id/android:list"
         tools:listitem="@layout/list_item_reservation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="wrap_content" />
     <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No reservations!" />
+        android:id="@id/android:empty"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/no_reservations" android:gravity="center"
+        >
+    </TextView>
+
 </LinearLayout>

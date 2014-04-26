@@ -54,7 +54,7 @@ public class MainActivity extends FragmentActivity {
     ViewPager mViewPager;
 
     // Overridden just to know if the user rotated the device in onCreate()
-@Override
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("dummy", "dummy");
@@ -71,7 +71,7 @@ public class MainActivity extends FragmentActivity {
             // App is created.
             // Synchronize the database
             Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC,1);
+            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
             startService(syncDatabaseIntent);
         }
 
@@ -253,15 +253,23 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public ListFragment getItem(int position) {
-            ListFragment fragment = null;
+            ListFragment fragment = new BooksListFragment();
+            Bundle bundle = new Bundle();
             switch (position) {
                 case 0:
                     // show all books
-                fragment = new BooksListFragment(null, null);
+                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.ALL_BOOKS_MODE);
+                    break;
                 case 1:
                     // show reserved books
-                    fragment = new BooksListFragment("where ")
+                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.RESERVED_BOOKS_MODE);
+                    break;
+                case 2:
+                    // lent books mode
+                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.LENT_BOOKS_MODE);
+                    break;
             }
+            fragment.setArguments(bundle);
             return fragment;
         }
 
@@ -275,11 +283,11 @@ public class MainActivity extends FragmentActivity {
             Locale l = Locale.getDefault();
             switch (position) {
                 case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
+                    return getString(R.string.all_books).toUpperCase(l);
                 case 1:
-                    return getString(R.string.title_section3).toUpperCase(l);
+                    return getString(R.string.reserved_books).toUpperCase(l);
                 case 2:
-                    return getString(R.string.title_section2).toUpperCase(l);
+                    return getString(R.string.lent_books).toUpperCase(l);
             }
             return null;
         }

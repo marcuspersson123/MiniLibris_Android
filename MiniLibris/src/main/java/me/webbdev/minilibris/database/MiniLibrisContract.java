@@ -21,6 +21,7 @@ public class MiniLibrisContract {
         public static final String CHANGED = "changed";
 
         public static final String[] ALL_FIELDS = {_ID, TITLE, PUBLISHER, AUTHOR, YEAR, CATEGORY_ID, CHANGED};
+
     }
 
     // The contract that makes it safer to use the reservations table
@@ -36,6 +37,12 @@ public class MiniLibrisContract {
         public static final String IS_LENT = "is_lent";
 
         public static final String[] ALL_FIELDS = {_ID, BOOK_ID, USER_ID, BEGINS, ENDS, IS_LENT};
+    }
+
+    public static class UserBooks {
+        public static final String BASE_PATH = "user_books";
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + AUTHORITY + "/" + BASE_PATH);
     }
 }
 

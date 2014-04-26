@@ -101,16 +101,19 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+            final Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
             mDay = day;
             mMonth = month;
             mYear = year;
 
-            final DatePickerDialog dpDialog = new DatePickerDialog(getActivity(), this, year, month, day);
-            dpDialog.getDatePicker().setMinDate(c.getTimeInMillis());
+            final PersistingTitleDatePickerDialog dpDialog = new PersistingTitleDatePickerDialog(getActivity(), this, year, month, day);
+
+            dpDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+            calendar.add(Calendar.YEAR,1);
+            dpDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
             dpDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Reserve", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     BookDetailActivity activity = (BookDetailActivity) getActivity();
@@ -121,6 +124,12 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
                     dialog.dismiss();
                 }
             });
+            dpDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            dpDialog.setPersistingTitle(R.string.select_reservation_date_title);
             return dpDialog;
         }
 

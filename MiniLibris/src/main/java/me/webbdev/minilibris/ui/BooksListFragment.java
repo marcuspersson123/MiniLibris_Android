@@ -1,8 +1,10 @@
 package me.webbdev.minilibris.ui;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.content.CursorLoader;
@@ -20,15 +22,15 @@ import android.widget.*;
 class BooksListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>,AdapterView.OnItemClickListener {
 
-    private final String whereClause;
-    private final String[] whereClauseVariables;
+    public static final String MODE_KEY = "MODE_KEY";
     public SimpleCursorAdapter adapter;
     private Context mContext;
+    static final int ALL_BOOKS_MODE = 0;
+    static final int RESERVED_BOOKS_MODE = 1;
+    static final int LENT_BOOKS_MODE = 2;
 
 
-    public BooksListFragment(String whereClause, String[] whereClauseVariables) {
-        this.whereClause = whereClause;
-        this.whereClauseVariables = whereClauseVariables;
+    public BooksListFragment() {
     }
 
     @Override
@@ -48,8 +50,8 @@ class BooksListFragment extends ListFragment implements
         mContext = this.getActivity().getApplicationContext();
         ListView lv = this.getListView();
         lv.setOnItemClickListener(this);
-        String[] databaseFields = new String[] { MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
-        int[] databaseFieldsToIds = new int[] { R.id.title, R.id.year};
+        String[] databaseFields = new String[] { MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.AUTHOR };
+        int[] databaseFieldsToIds = new int[] { R.id.title, R.id.author};
 
         getLoaderManager().initLoader(0, null, this);
         adapter = new SimpleCursorAdapter(mContext,R.layout.list_item_book, null, databaseFields, databaseFieldsToIds, 0);
@@ -61,9 +63,26 @@ class BooksListFragment extends ListFragment implements
     // Fetches the interesting fields
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] databaseFields = new String[] { MiniLibrisContract.Books._ID, MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.YEAR };
-        CursorLoader cursorLoader = new CursorLoader( mContext,
-                MiniLibrisContract.Books.CONTENT_URI, databaseFields, whereClause, whereClauseVariables, null);
+
+        // To avoid ambiguity in the sql join query, the _id field has to be set explicitly
+        String[] databaseFields = new String[] { MiniLibrisContract.Books.BASE_PATH + "." + MiniLibrisContract.Books._ID, MiniLibrisContract.Books.TITLE, MiniLibrisContract.Books.AUTHOR };
+        CursorLoader cursorLoader = null;
+        switch (getArguments().getInt(MODE_KEY)) {
+            case ALL_BOOKS_MODE:
+            cursorLoader = new CursorLoader(mContext,
+                    MiniLibrisContract.Books.CONTENT_URI, databaseFields, null, null, null);
+                break;
+            case RESERVED_BOOKS_MODE:
+                Uri stttingleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, 3);
+                cursorLoader = new CursorLoader(mContext,
+                        stttingleUri, databaseFields, "is_lent=?", new String[] {"0"}, null);
+                break;
+            case LENT_BOOKS_MODE:
+                Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, 3);
+                cursorLoader = new CursorLoader(mContext,
+                        singleUri, databaseFields, "is_lent=?", new String[] {"1"}, null);
+                break;
+        }
         return cursorLoader;
     }
 
