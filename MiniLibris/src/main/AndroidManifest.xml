@@ -54,12 +54,8 @@
 
         <activity
             android:name="me.webbdev.minilibris.ui.BookDetailActivity"
-            android:label="@string/title_activity_book_detail" >
-        </activity>
-        <activity
-            android:name="me.webbdev.minilibris.LoginActivity2"
-            android:label="@string/title_activity_login_activity2"
-            android:windowSoftInputMode="adjustResize|stateHidden" >
+            android:label="@string/title_activity_book_detail"
+            android:parentActivityName=".ui.MainActivity">
         </activity>
         <activity
             android:name="me.webbdev.minilibris.ui.LoginActivity"

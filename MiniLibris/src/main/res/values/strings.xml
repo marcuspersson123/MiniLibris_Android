@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MiniLibris</string>
-    <string name="action_settings">Inställningar</string>
+    <string name="action_login">Inloggning</string>
     <string name="all_books">Alla böcker</string>
     <string name="lent_books">Lånade</string>
     <string name="reserved_books">Reserverade</string>

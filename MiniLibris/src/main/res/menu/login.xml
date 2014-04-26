@@ -3,7 +3,7 @@
     tools:context="me.webbdev.minilibris.ui.LoginActivity" >
     
     <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="@string/action_login"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

@@ -23,6 +23,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
@@ -240,6 +242,17 @@ public class MainActivity extends FragmentActivity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_login:
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                break;
+        }
+
+        return true;
+    }
 
     /**
      * This adapter returns a fragment corresponding to

@@ -88,7 +88,10 @@
             android:paddingRight="5dp"
             android:src="@drawable/adventskalender"
             android:id="@+id/bookImageView"
-            android:layout_height="100dp" />
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+
+            android:layout_height="90dp" />
 
         <ScrollView
             android:paddingLeft="7dp"
