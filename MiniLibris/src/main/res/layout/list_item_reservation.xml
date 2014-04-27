@@ -21,6 +21,6 @@
         android:src="@drawable/delete"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-android:padding="12dp"
+android:padding="15dp"
         android:id="@+id/deleteReservationImageButton" />
 </LinearLayout>

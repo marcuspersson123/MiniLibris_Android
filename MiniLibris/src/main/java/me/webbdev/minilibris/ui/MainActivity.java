@@ -10,6 +10,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,10 +19,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ListFragment;
+
+
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
@@ -30,7 +31,7 @@ import android.widget.Toast;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class MainActivity extends FragmentActivity implements BooksListFragment.BooksListFragmentListener {
+public class MainActivity extends Activity implements BooksListFragment.BooksListFragmentListener {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -84,7 +85,7 @@ public class MainActivity extends FragmentActivity implements BooksListFragment.
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
+                getFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
@@ -294,7 +295,7 @@ public class MainActivity extends FragmentActivity implements BooksListFragment.
 
         @Override
         public ListFragment getItem(int position) {
-            ListFragment fragment = new BooksListFragment();
+            BooksListFragment fragment = new BooksListFragment();
             Bundle bundle = new Bundle();
             switch (position) {
                 case 0:
@@ -311,7 +312,7 @@ public class MainActivity extends FragmentActivity implements BooksListFragment.
                     break;
             }
             fragment.setArguments(bundle);
-            return fragment;
+            return (ListFragment) fragment;
         }
 
         @Override

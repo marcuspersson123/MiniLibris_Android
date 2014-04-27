@@ -22,7 +22,8 @@
         tools:layout="@layout/empty" />
     <fragment
         android:layout_width="match_parent"
-        android:layout_height="210dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:name="me.webbdev.minilibris.ui.BookDetailFragment"
         android:id="@+id/bookDetailFragment"
         android:layout_marginLeft="5dp"
@@ -34,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_weight="1"
+
         android:name="me.webbdev.minilibris.ui.ReservationsListFragment"
         android:id="@+id/reservationsListFragment"
         tools:layout="@layout/fragment_reservations_list" />
