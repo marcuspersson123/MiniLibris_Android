@@ -11,12 +11,10 @@ import android.widget.Toast;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback {
+public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback, ReservationsListFragment.ReservationsListFragmentListener, BookDetailFragment.BookDetailFragmentListener {
 
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
-//    private static final String TAG_CREATE_RESERVATION_TASK_FRAGMENT = "1";
-//    private static final String TAG_DELETE_RESERVATION_TASK_FRAGMENT = "2";
     private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
 
     @Override
@@ -29,23 +27,6 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         this.bookDetailFragment = (BookDetailFragment) fragmentManager.findFragmentById(R.id.bookDetailFragment);
         mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentById(R.id.createReservationTaskFragment);
         mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentById(R.id.deleteReservationTaskFragment);
-
-       /* mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentByTag(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
-        // If the Fragment is non-null, then it is currently being
-        // retained across a configuration change.
-        if (mCreateReservationTaskFragment == null) {
-            mCreateReservationTaskFragment = new CreateReservationTaskFragment(TAG_CREATE_RESERVATION_TASK_FRAGMENT);
-            fragmentManager.beginTransaction().add(mCreateReservationTaskFragment, TAG_CREATE_RESERVATION_TASK_FRAGMENT).commit();
-        }*/
-
-/*        mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentByTag(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
-        // If the Fragment is non-null, then it is currently being
-        // retained across a configuration change.
-        if (mDeleteReservationTaskFragment == null) {
-            mDeleteReservationTaskFragment = new DeleteReservationTaskFragment(TAG_DELETE_RESERVATION_TASK_FRAGMENT);
-            fragmentManager.beginTransaction().add(mDeleteReservationTaskFragment, TAG_DELETE_RESERVATION_TASK_FRAGMENT).commit();
-        }*/
-
     }
 
     // When a user wants to reserve the book.
@@ -149,5 +130,15 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     public void onStartDeleteReservationTask(int reservationId) {
         mDeleteReservationTaskFragment.setReservationId(reservationId);
         mDeleteReservationTaskFragment.start();
+    }
+
+    @Override
+    public int getUserId() {
+        return getIntent().getIntExtra("user_id", -1);
+    }
+
+    @Override
+    public int getBookId() {
+        return getIntent().getIntExtra("id", -1);
     }
 }

@@ -1,5 +1,7 @@
 package me.webbdev.minilibris.ui;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,7 +38,7 @@ public class LoginTaskFragment extends TaskFragment {
     private String result;
     private String password;
 private String username;
-    private int userId;
+    //private int userId;
 
     public void setPassword(String password) {
         this.password = password;
@@ -46,9 +48,9 @@ private String username;
         this.username = username;
     }
 
-    public int getUserId() {
-        return userId;
-    }
+    //public int getUserId() {
+      //  return userId;
+    //}
 
     public String getResult() {
         return result;
@@ -90,14 +92,26 @@ private String username;
                     try {
                         JSONObject jsonobject = new JSONObject(jsonString);
                         if (jsonobject != null) {
-                            if (jsonobject.has("success")) {
-                                this.userId = jsonobject.optInt("user_id",-1);
+                            if (jsonobject.optBoolean("success",false)) {
+
+
+                                    SharedPreferences.Editor sharedPreferencesEditor = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE).edit();
+                                sharedPreferencesEditor.putInt("user_id", jsonobject.optInt("user_id",-1));
+                                sharedPreferencesEditor.putString("username", jsonobject.optString("username",""));
+                                sharedPreferencesEditor.putString("first_name", jsonobject.optString("first_name",""));
+                                sharedPreferencesEditor.putString("surname", jsonobject.optString("surname",""));
+                                sharedPreferencesEditor.putString("address", jsonobject.optString("address",""));
+                                sharedPreferencesEditor.putString("phone", jsonobject.optString("phone",""));
+                                sharedPreferencesEditor.commit();
                             } else {
-                                JSONArray errors = jsonobject.optJSONArray("errors");
+                                JSONObject validationContainer = jsonobject.getJSONObject("validationContainer");
+                                JSONArray errors = validationContainer.optJSONArray("errors");
                                 if (errors != null && errors.length() > 0) {
                                     JSONObject error = errors.optJSONObject(0);
                                     String summary = error.getString("summary");
                                     result = summary;
+                                } else {
+                                    result = "Ett fel uppstod";
                                 }
                             }
                         }

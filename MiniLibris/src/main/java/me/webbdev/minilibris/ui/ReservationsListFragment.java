@@ -25,6 +25,12 @@ public class ReservationsListFragment extends ListFragment implements
     public ReservationsCursorAdapter adapter;
     private Context mContext;
     private int bookId;
+    private int userId;
+
+    public interface ReservationsListFragmentListener {
+    public int getUserId();
+        public int getBookId();
+    }
 
     public ReservationsListFragment() {
     }
@@ -35,19 +41,17 @@ public class ReservationsListFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.fragment_reservations_list,
                 container, false);
         ListView lv = (ListView) rootView.findViewById(android.R.id.list);
-        //TextView emptyText = (TextView) rootView.findViewById(android.R.id.empty);
-        // lv.setEmptyView(emptyText);
-//        View header = inflater.inflate(R.layout.fragment_reservations_list_header, null);
-//        lv.setHe
         return rootView;
     }
+
     @Override
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
         mContext = this.getActivity().getApplicationContext();
-        bookId = getActivity().getIntent().getIntExtra("id", -1);
+        this.bookId = ((ReservationsListFragmentListener) getActivity()).getBookId();
+        this.userId = ((ReservationsListFragmentListener) getActivity()).getUserId();
         getLoaderManager().initLoader(0, null, this);
-        adapter = new ReservationsCursorAdapter(getActivity(),null);
+        adapter = new ReservationsCursorAdapter(getActivity(), null);
         setListAdapter(adapter);
     }
 
@@ -55,10 +59,10 @@ public class ReservationsListFragment extends ListFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Reservations.ALL_FIELDS;
-        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ? and is_lent=0";
+        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ?";
         String[] whereVariables = new String[]{String.valueOf(this.bookId)};
-        CursorLoader cursorLoader = new CursorLoader( mContext,
-                MiniLibrisContract.Reservations.CONTENT_URI, projection, whereClause , whereVariables, null);
+        CursorLoader cursorLoader = new CursorLoader(mContext,
+                MiniLibrisContract.Reservations.CONTENT_URI, projection, whereClause, whereVariables, null);
         return cursorLoader;
     }
 
@@ -86,17 +90,23 @@ public class ReservationsListFragment extends ListFragment implements
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             final int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
-            TextView timespanTextView = (TextView)view.findViewById(R.id.timespanTextView);
+            final int reservationUserId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations.USER_ID));
+            TextView timespanTextView = (TextView) view.findViewById(R.id.timespanTextView);
             String begins = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.BEGINS));
             String ends = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
-            timespanTextView.setText("Från "+begins + " till " + ends);
+            timespanTextView.setText("Från " + begins + " till " + ends);
             ImageButton deleteImageButton = (ImageButton) view.findViewById(R.id.deleteReservationImageButton);
-            deleteImageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onDeleteReservation(reservationId);
-                }
-            });
+            if (reservationUserId != ReservationsListFragment.this.userId) {
+                deleteImageButton.setVisibility(View.GONE);
+            } else {
+
+                deleteImageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onDeleteReservation(reservationId);
+                    }
+                });
+            }
         }
 
         @Override

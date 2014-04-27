@@ -14,5 +14,6 @@
     <string name="no_reservations">(inga reservationer)</string>
     <string name="title_activity_login">Logga in</string>
     <string name="hello_world">Hello world!</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -9,6 +9,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,32 +30,24 @@ import android.widget.Toast;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements BooksListFragment.BooksListFragmentListener {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     String SENDER_ID = "966357151127";  // (the project id in Google Cloud Messaging)
-    GoogleCloudMessaging gcm;
+    GoogleCloudMessaging googleCloudMessaging;
     AtomicInteger msgId = new AtomicInteger();
     SharedPreferences prefs;
     Context context;
     String regid;
 
 
-    /**
-     * Tag used on log messages.
-     */
-    static final String TAG = "GCMDemo";
+    static final String TAG = "Main activity";
 
     SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     ViewPager mViewPager;
-
     // Overridden just to know if the user rotated the device in onCreate()
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -63,12 +56,21 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+
     // On create
     // When the app is first started, synchronizes with the MiniLibris database.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        int userId = getUserId();
+        if (userId<0) {
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            startActivity(loginIntent);
+            finish();
+            return;
+        }
         if (savedInstanceState == null) {
             // App is created.
             // Synchronize the database
@@ -92,7 +94,7 @@ public class MainActivity extends FragmentActivity {
         // Check device for Play Services APK. If check succeeds, proceed with
         //  GCM registration.
         if (checkPlayServices()) {
-            gcm = GoogleCloudMessaging.getInstance(this);
+            googleCloudMessaging = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
 
             if (regid.isEmpty()) {
@@ -103,6 +105,20 @@ public class MainActivity extends FragmentActivity {
         }
 
 
+
+    }
+
+    private int getUserId() {
+        SharedPreferences sharedPreferences = getSharedPreferences("user_info", Activity.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("user_id", -1);
+        return userId;
+    }
+
+    private void startServerSynchronizing() {
+        // When testing on Shared network GCM rarely works. Update immediately.
+        Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
+        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
+        startService(syncDatabaseIntent);
     }
 
     /**
@@ -168,10 +184,10 @@ public class MainActivity extends FragmentActivity {
             protected String doInBackground(Void... params) {
                 String msg;
                 try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(context);
+                    if (googleCloudMessaging == null) {
+                        googleCloudMessaging = GoogleCloudMessaging.getInstance(context);
                     }
-                    regid = gcm.register(SENDER_ID);
+                    regid = googleCloudMessaging.register(SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
 
                     // You should send the registration ID to your server over HTTP,
@@ -249,9 +265,21 @@ public class MainActivity extends FragmentActivity {
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.action_synchronize:
+                startServerSynchronizing();
+                break;
         }
 
         return true;
+    }
+
+    @Override
+    public void onBookSelected(int id) {
+        Intent intent = new Intent(this,BookDetailActivity.class);
+        intent.putExtra("id", (int) id);
+        intent.putExtra("user_id", getUserId());
+        startActivity(intent);
+
     }
 
     /**

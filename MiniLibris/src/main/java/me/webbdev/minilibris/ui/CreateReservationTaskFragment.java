@@ -3,6 +3,7 @@ package me.webbdev.minilibris.ui;
 import android.app.Activity;
 
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -87,12 +88,14 @@ public class CreateReservationTaskFragment extends TaskFragment {
         String result = null;
         String begins = getBegins();
         String ends = getEnds();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("user_id", -1);
 
         try {
             JSONObject json = new JSONObject();
 
             json.put("book_id", book_id);
-            json.put("user_id", 3);
+            json.put("user_id", userId);
             json.put("begins",begins);
             json.put("ends", ends);
             json.put("is_lent", false);

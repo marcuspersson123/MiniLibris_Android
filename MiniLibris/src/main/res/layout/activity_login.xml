@@ -1,57 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_width="250dp"
-    android:layout_gravity="center"
-    android:gravity="right"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="me.webbdev.minilibris.ui.LoginFragment"
+        android:id="@+id/loginFragment"
+        tools:layout="@layout/fragment_login" />
 
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="me.webbdev.minilibris.ui.LoginDetailsFragment"
+        android:id="@+id/loginDetailsFragment"
+        tools:layout="@layout/fragment_login_details" />
 
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="me.webbdev.minilibris.ui.LoginTaskFragment"
+        android:id="@+id/loginTaskFragment"
+        android:visibility="gone"
+        tools:layout="@layout/empty" />
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Användarnamn"
-            android:id="@+id/usernameEditText" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_marginBottom="15dp"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="textPassword"
-            android:hint="Lösenord"
-            android:ems="10"
-            android:id="@+id/passwordEditText" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:gravity="right"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logga in"
-
-            android:id="@+id/loginButton"
-            android:layout_gravity="center_horizontal" />
-
-    </LinearLayout>
 </LinearLayout>
+

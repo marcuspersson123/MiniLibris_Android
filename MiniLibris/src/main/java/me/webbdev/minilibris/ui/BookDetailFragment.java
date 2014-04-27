@@ -24,6 +24,9 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
     private TextView publisherTextView;
     private ImageView bookImageView;
 
+    public interface BookDetailFragmentListener {
+        public int getBookId();
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -42,7 +45,7 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
         super.onActivityCreated(bundle);
 
         this.reserveImageButton.setOnClickListener(this);
-         book_id = getActivity().getIntent().getIntExtra("id", -1);
+         book_id = ((BookDetailFragmentListener) getActivity()).getBookId();
 
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, book_id);
         Cursor cursor = this.getActivity().getContentResolver().query(singleUri, MiniLibrisContract.Books.ALL_FIELDS, null, null, null);
@@ -114,7 +117,7 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
             dpDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
             calendar.add(Calendar.YEAR,1);
             dpDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
-            dpDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Reserve", new DialogInterface.OnClickListener() {
+            dpDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Reservera", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     BookDetailActivity activity = (BookDetailActivity) getActivity();
                     int year = dpDialog.getDatePicker().getYear();
@@ -124,7 +127,7 @@ public class BookDetailFragment extends Fragment implements View.OnClickListener
                     dialog.dismiss();
                 }
             });
-            dpDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            dpDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Avbryt", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.dismiss();
                 }
