@@ -127,10 +127,10 @@ public class CreateReservationTaskFragment extends TaskFragment {
 
                         }
                     } catch (JSONException e) {
-                        result = "Malformed JSON object";
+                        result = "Serverfel";
                     }
                 } else {
-                    result = "Malformed json string";
+                    result = "Serverfel";
                 }
             } else {
                 result = "Non existing inputstream";
@@ -140,7 +140,7 @@ public class CreateReservationTaskFragment extends TaskFragment {
             result = "Client protocol error";
         } catch (IOException e) {
             Log.e(TAG, "io exception", e);
-            result = "IO Exception";
+            result = "Inget Internet";
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

@@ -76,21 +76,22 @@ public class BooksListFragment extends ListFragment implements
         CursorLoader cursorLoader = null;
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE);
         int userId = sharedPreferences.getInt("user_id", -1);
+        String sortOrder = MiniLibrisContract.Books.TITLE + " ASC";
         switch (getArguments().getInt(MODE_KEY)) {
             case ALL_BOOKS_MODE:
                 cursorLoader = new CursorLoader(mContext,
-                        MiniLibrisContract.Books.CONTENT_URI, databaseFields, null, null, null);
+                        MiniLibrisContract.Books.CONTENT_URI, databaseFields, null, null, sortOrder);
                 break;
             case RESERVED_BOOKS_MODE:
 
                 Uri stttingleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
                 cursorLoader = new CursorLoader(mContext,
-                        stttingleUri, databaseFields, "is_lent=?", new String[]{"0"}, null);
+                        stttingleUri, databaseFields, "is_lent=?", new String[]{"0"}, sortOrder);
                 break;
             case LENT_BOOKS_MODE:
                 Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
                 cursorLoader = new CursorLoader(mContext,
-                        singleUri, databaseFields, "is_lent=?", new String[]{"1"}, null);
+                        singleUri, databaseFields, "is_lent=?", new String[]{"1"}, sortOrder);
                 break;
         }
         return cursorLoader;

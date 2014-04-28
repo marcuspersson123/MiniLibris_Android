@@ -114,29 +114,33 @@ public class SyncDatabaseIntentService extends IntentService {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void showNotification(int notificationId, String msg) {
-        NotificationManager notificationManager;
-        notificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentApiVersion >= Build.VERSION_CODES.JELLY_BEAN) {
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MainActivity.class), 0);
+            NotificationManager notificationManager;
+            notificationManager = (NotificationManager)
+                    this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Notification.Builder mBuilder =
-                new Notification.Builder(this)
-                        .setContentTitle("MiniLibris")
-                        .setStyle(new Notification.BigTextStyle().bigText(msg))
-                        .setContentText(msg);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                    new Intent(this, MainActivity.class), 0);
 
-        switch (notificationId) {
-            case SYNCHRONIZING_NOTIFICATION_ID:
-                mBuilder.setSmallIcon(android.R.drawable.ic_popup_sync);
-                break;
-            default:
-                mBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-                break;
+            Notification.Builder mBuilder =
+                    new Notification.Builder(this)
+                            .setContentTitle("MiniLibris")
+                            .setStyle(new Notification.BigTextStyle().bigText(msg))
+                            .setContentText(msg);
+
+            switch (notificationId) {
+                case SYNCHRONIZING_NOTIFICATION_ID:
+                    mBuilder.setSmallIcon(android.R.drawable.ic_popup_sync);
+                    break;
+                default:
+                    mBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                    break;
+            }
+            mBuilder.setContentIntent(contentIntent);
+            notificationManager.notify(notificationId, mBuilder.build());
         }
-        mBuilder.setContentIntent(contentIntent);
-        notificationManager.notify(notificationId, mBuilder.build());
     }
 
     // Synchronises rows from all tables

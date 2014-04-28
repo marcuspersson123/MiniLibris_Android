@@ -11,7 +11,7 @@ import android.widget.Toast;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback, ReservationsListFragment.ReservationsListFragmentListener, BookDetailFragment.BookDetailFragmentListener {
+public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback, ReservationsListFragment.ReservationsListFragmentListener, BookDetailFragment.BookDetailFragmentListener, DatePickerFragment.DatePickerFragmentListener {
 
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
@@ -29,35 +29,8 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentById(R.id.deleteReservationTaskFragment);
     }
 
-    // When a user wants to reserve the book.
-    // Tells a headless fragment to reserve.
-    public void onStartReservationTask(long book_id, int year, int month, int day) {
-        mCreateReservationTaskFragment.setBookId(book_id);
-        mCreateReservationTaskFragment.setYear(year);
-        mCreateReservationTaskFragment.setMonth(month);
-        mCreateReservationTaskFragment.setDay(day);
-        mCreateReservationTaskFragment.start();
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
 
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.book_detail, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onPreExecute(int fragmentId) {
@@ -140,5 +113,16 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     @Override
     public int getBookId() {
         return getIntent().getIntExtra("id", -1);
+    }
+
+    // When a user wants to reserve the book.
+    // Tells a headless fragment to reserve.
+    @Override
+    public void onReserveDateSelected(int year, int month, int day) {
+        mCreateReservationTaskFragment.setBookId(getBookId());
+        mCreateReservationTaskFragment.setYear(year);
+        mCreateReservationTaskFragment.setMonth(month);
+        mCreateReservationTaskFragment.setDay(day);
+        mCreateReservationTaskFragment.start();
     }
 }
