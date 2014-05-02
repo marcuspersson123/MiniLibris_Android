@@ -77,6 +77,7 @@ public class MiniLibrisContentProvider extends ContentProvider {
                         + uri.getLastPathSegment());
                 break;
             case USER_BOOKS_ID:
+                // An example target select query below:
                 // SELECT * FROM reservations INNER  JOIN books ON reservations.book_id=books.book_id where reservations.user_id=3 GROUP BY books.book_id
 
                 String booksTableName = MiniLibrisContract.Books.BASE_PATH;

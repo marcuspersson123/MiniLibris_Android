@@ -71,7 +71,7 @@ public class DatabaseFetcher {
             Uri.Builder builder = Uri.parse(url).buildUpon();
             if (fetchTimestamp == null) {
                 //throw new RuntimeException("You need to specify a fetch timestamp!");
-                fetchTimestamp = Timestamp.valueOf("1900-01-01 00:00:00");
+                fetchTimestamp = this.getLastSuccessfulSync();
             }
             builder.appendQueryParameter("after_timestamp", fetchTimestamp.toString());
             String url = builder.build().toString();

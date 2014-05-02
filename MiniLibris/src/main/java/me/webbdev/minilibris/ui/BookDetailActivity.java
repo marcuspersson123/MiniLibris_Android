@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
@@ -13,24 +11,22 @@ import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
 public class BookDetailActivity extends Activity implements TaskFragment.TaskFragmentCallback, ReservationsListFragment.ReservationsListFragmentListener, BookDetailFragment.BookDetailFragmentListener, DatePickerFragment.DatePickerFragmentListener {
 
+    // Three fragments defined in xml
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
     private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
 
+    // Display the Activity.
+    // Save references to the fragments.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_book_detail);
-
         FragmentManager fragmentManager = getFragmentManager();
         this.bookDetailFragment = (BookDetailFragment) fragmentManager.findFragmentById(R.id.bookDetailFragment);
         mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentById(R.id.createReservationTaskFragment);
         mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentById(R.id.deleteReservationTaskFragment);
     }
-
-
-
 
     @Override
     public void onPreExecute(int fragmentId) {
@@ -78,28 +74,22 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
                     // Failed
                     Toast.makeText(this, fragmentMessage, Toast.LENGTH_LONG).show();
                 } else {
-                    // When testing on Shared network GCM rarely works. Update immediately.
-                    startServerSynchronizing();
-
+                    Toast.makeText(this, getString(R.string.reservation_deleted), Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.createReservationTaskFragment:
-                // When testing on Shared network GCM rarely works. Update immediately.
-                Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-                syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
-                startService(syncDatabaseIntent);
                 fragmentMessage = mCreateReservationTaskFragment.getResult();
                 if (fragmentMessage == null) {
                     // successfully created a reservation
-                    // When testing on Shared network GCM rarely works. Update immediately.
-                    startServerSynchronizing();
+                    Toast.makeText(this, getString(R.string.was_reserved), Toast.LENGTH_LONG).show();
                 }
                 bookDetailFragment.onReservationTaskFinished(fragmentMessage);
                 break;
         }
     }
 
-
+    // Message from fragment.
+    // Starts a TaskFragment to delete a reservation.
     public void onStartDeleteReservationTask(int reservationId) {
         mDeleteReservationTaskFragment.setReservationId(reservationId);
         mDeleteReservationTaskFragment.start();
@@ -115,11 +105,12 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         return getIntent().getIntExtra("id", -1);
     }
 
-    // When a user wants to reserve the book.
-    // Tells a headless fragment to reserve.
+    // Message from a fragment
+    // Tells a TaskFragment to create a new reservation.
     @Override
     public void onReserveDateSelected(int year, int month, int day) {
         mCreateReservationTaskFragment.setBookId(getBookId());
+        mCreateReservationTaskFragment.setUserId(getUserId());
         mCreateReservationTaskFragment.setYear(year);
         mCreateReservationTaskFragment.setMonth(month);
         mCreateReservationTaskFragment.setDay(day);

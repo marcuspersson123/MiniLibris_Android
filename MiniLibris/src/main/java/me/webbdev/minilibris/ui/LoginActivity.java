@@ -22,6 +22,9 @@ public class LoginActivity extends Activity implements TaskFragment.TaskFragment
     private LoginDetailsFragment loginDetailsFragment;
 
 
+    // Decide which fragment to show
+    // If logged in, show the loginDetails fragment.
+    // If not logged in show the login fragment.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +35,7 @@ public class LoginActivity extends Activity implements TaskFragment.TaskFragment
         SharedPreferences sharedPreferences = getSharedPreferences("user_info", Activity.MODE_PRIVATE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         int userId = sharedPreferences.getInt("user_id", -1);
-        if (userId>=0) {
+        if (userId >= 0) {
             transaction.hide(loginFragment);
         } else {
             transaction.hide(loginDetailsFragment);
@@ -40,6 +43,7 @@ public class LoginActivity extends Activity implements TaskFragment.TaskFragment
         transaction.commit();
     }
 
+    // A login task was finished.
     @Override
     public void onPostExecute(int fragmentId) {
         String fragmentMessage;
@@ -51,19 +55,16 @@ public class LoginActivity extends Activity implements TaskFragment.TaskFragment
                     // Failed
                     Toast.makeText(LoginActivity.this, fragmentMessage, Toast.LENGTH_LONG).show();
                 } else {
-
-loginDetailsFragment.getMediator().communicate();
+                    // Successfully gotten user information from the server.
+                    // Switch to the login details fragment.
+                    loginDetailsFragment.getMediator().communicate();
                     FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-                        transaction.hide(loginFragment);
-
-                        transaction.show(loginDetailsFragment);
-
+                    transaction.hide(loginFragment);
+                    transaction.show(loginDetailsFragment);
                     transaction.commit();
                     Toast.makeText(LoginActivity.this, "Inloggad", Toast.LENGTH_LONG).show();
                 }
                 break;
-
         }
     }
 
@@ -75,6 +76,7 @@ loginDetailsFragment.getMediator().communicate();
     public void onProgressUpdate(int fragmentId, int percent) {
     }
 
+    // A login in task was cancelled.
     @Override
     public void onCancelled(int fragmentId) {
         switch (fragmentId) {
@@ -86,20 +88,27 @@ loginDetailsFragment.getMediator().communicate();
     }
 
 
+    // Event from login fragment.
+    // Start off a login task.
     @Override
-    public void startLogin(String username, String password) {
+    public void onStartLogin(String username, String password) {
         this.loginTaskFragment.setPassword(password);
         this.loginTaskFragment.setUsername(username);
         this.loginTaskFragment.start();
     }
 
+    // Event from login details fragment.
+    // The user has the rights and wants to go to the app.
     @Override
-    public void onGotoApp() {
+    public void onStartUsingApp() {
         Intent mainActivityIntent = new Intent(this, MainActivity.class);
         startActivity(mainActivityIntent);
         finish();
     }
 
+    // Event from login details fragment.
+    // Remove the stored user_id in shared preferences.
+    // Show the login fragment.
     @Override
     public void onLogout() {
         SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences("user_info", Activity.MODE_PRIVATE).edit();
@@ -107,12 +116,8 @@ loginDetailsFragment.getMediator().communicate();
         sharedPreferencesEditor.commit();
 
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
         transaction.show(loginFragment);
-
         transaction.hide(loginDetailsFragment);
-
         transaction.commit();
-
     }
 }

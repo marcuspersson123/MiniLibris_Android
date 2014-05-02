@@ -4,7 +4,9 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.widget.DatePicker;
 
-// A date picker dialog gets its title replaced after date selection
+// A work around.
+// Problem:  A date picker dialog gets its title replaced after date selection
+// This subclass of DatePickerDialog remebers its title.
 public class PersistingTitleDatePickerDialog extends DatePickerDialog {
 
     private CharSequence title;

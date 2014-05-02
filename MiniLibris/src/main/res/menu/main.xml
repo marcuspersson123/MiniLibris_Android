@@ -13,4 +13,9 @@
         android:orderInCategory="102"
         android:icon="@android:drawable/ic_popup_sync"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_contact"
+        android:title="Kontakt"
+        android:orderInCategory="103"
+        android:showAsAction="never" />
 </menu>

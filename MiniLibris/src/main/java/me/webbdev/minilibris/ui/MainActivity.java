@@ -3,7 +3,6 @@ package me.webbdev.minilibris.ui;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -31,30 +30,26 @@ import android.widget.Toast;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
-public class MainActivity extends Activity implements BooksListFragment.BooksListFragmentListener {
+public class MainActivity extends Activity implements BooksListFragment.BooksListFragmentListener, TaskFragment.TaskFragmentCallback {
 
-    public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     String SENDER_ID = "966357151127";  // (the project id in Google Cloud Messaging)
     GoogleCloudMessaging googleCloudMessaging;
-    AtomicInteger msgId = new AtomicInteger();
-    SharedPreferences prefs;
-    Context context;
-    String regid;
+    Context applicationContext;
+    String registrationId;
 
-
-    static final String TAG = "Main activity";
+    static final String TAG = "MainActivity";
 
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
+
     // Overridden just to know if the user rotated the device in onCreate()
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("dummy", "dummy");
-
     }
 
 
@@ -63,7 +58,6 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         int userId = getUserId();
         if (userId<0) {
@@ -90,23 +84,19 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        context = getApplicationContext();
+        applicationContext = getApplicationContext();
 
         // Check device for Play Services APK. If check succeeds, proceed with
         //  GCM registration.
         if (checkPlayServices()) {
             googleCloudMessaging = GoogleCloudMessaging.getInstance(this);
-            regid = getRegistrationId(context);
-
-            if (regid.isEmpty()) {
+            registrationId = getRegistrationId(applicationContext);
+            if (registrationId.isEmpty()) {
                 registerInBackground();
             }
         } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
+            Toast.makeText(this,"Hittade inte Google play services",Toast.LENGTH_LONG).show();
         }
-
-
-
     }
 
     private int getUserId() {
@@ -134,7 +124,6 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         final SharedPreferences prefs = getGCMPreferences(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
-            Log.i(TAG, "Registration not found.");
             return "";
         }
         // Check if app was updated; if so, it must clear the registration ID
@@ -143,7 +132,7 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
-            Log.i(TAG, "App version changed.");
+            // The app version has been changed.
             return "";
         }
         return registrationId;
@@ -186,10 +175,10 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                 String msg;
                 try {
                     if (googleCloudMessaging == null) {
-                        googleCloudMessaging = GoogleCloudMessaging.getInstance(context);
+                        googleCloudMessaging = GoogleCloudMessaging.getInstance(applicationContext);
                     }
-                    regid = googleCloudMessaging.register(SENDER_ID);
-                    msg = "Device registered, registration ID=" + regid;
+                    registrationId = googleCloudMessaging.register(SENDER_ID);
+                    msg = "Telefonen är registrerad";
 
                     // You should send the registration ID to your server over HTTP,
                     // so it can use GCM/HTTP or CCS to send messages to your app.
@@ -202,9 +191,9 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                     // message using the 'from' address in the message.
 
                     // Persist the regID - no need to register again.
-                    storeRegistrationId(context, regid);
+                    storeRegistrationId(applicationContext, registrationId);
                 } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
+                    msg = "Det gick inte att registrera";
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
@@ -226,14 +215,18 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
      * using the 'from' address in the message.
      */
     private void sendRegistrationIdToBackend() {
-        // Your implementation here.
+        String registrationId = getRegistrationId(this);
+        GoogleCloudMessagingTaskFragment googleCloudMessagingTaskFragment = (GoogleCloudMessagingTaskFragment) getFragmentManager().findFragmentById(R.id.googleCloudMessagingTaskFragment);
+        googleCloudMessagingTaskFragment.setRegistrationId(registrationId);
+        googleCloudMessagingTaskFragment.setUserId(getUserId());
+        googleCloudMessagingTaskFragment.start();
     }
 
     /**
      * Stores the registration ID and app versionCode in the application's
      * {@code SharedPreferences}.
      *
-     * @param context application's context.
+     * @param context application's applicationContext.
      * @param regId   registration ID
      */
     private void storeRegistrationId(Context context, String regId) {
@@ -252,13 +245,14 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         checkPlayServices();
     }
 
+    // Inflate the menu; this adds items to the action bar.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+    // An a menu item was selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -269,17 +263,48 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             case R.id.action_synchronize:
                 startServerSynchronizing();
                 break;
+            case R.id.action_contact:
+                onShowContactActivity();
+                break;
         }
 
         return true;
     }
 
+    // Show the Contact Activity
+    private void onShowContactActivity() {
+        Intent intent = new Intent(this, ContactActivity.class);
+        startActivity(intent);
+    }
+
+
+    // Event from BooksListFragment
     @Override
     public void onBookSelected(int id) {
         Intent intent = new Intent(this,BookDetailActivity.class);
         intent.putExtra("id", (int) id);
         intent.putExtra("user_id", getUserId());
         startActivity(intent);
+
+    }
+
+    @Override
+    public void onPreExecute(int fragmentId) {
+
+    }
+
+    @Override
+    public void onProgressUpdate(int fragmentId, int percent) {
+
+    }
+
+    @Override
+    public void onCancelled(int fragmentId) {
+
+    }
+
+    @Override
+    public void onPostExecute(int fragmentId) {
 
     }
 
@@ -341,10 +366,9 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 Log.e("minilibris", "play finns inte och skulle behöva hämtas");
                 finish();
-
             } else {
                 // device is not supported
-                Log.e("minilibris", "play supportas inte)");
+                Log.e("minilibris", "play stöds inte på enheten)");
                 finish();
             }
             return false;

@@ -1,10 +1,6 @@
 package me.webbdev.minilibris.ui;
 
-import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
-
-
 import android.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+
 import me.webbdev.minilibris.R;
 
 
@@ -24,22 +20,15 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-       new Mediator().initialize(view);
+        new Mediator().initialize(view);
         return view;
     }
 
-    private class Mediator  {
+    private class Mediator {
         private Button loginButton;
-
         private EditText usernameEditText;
         private EditText passwordEditText;
 
@@ -86,20 +75,19 @@ public class LoginFragment extends Fragment {
                 }
             });
 
-            this.communicate();
+            this.mediate();
         }
 
 
         private void onUsernameChanged(String s) {
-            this.communicate();
-
+            this.mediate();
         }
 
         private void onPasswordChanged(String s) {
-            this.communicate();
+            this.mediate();
         }
 
-        private void communicate() {
+        private void mediate() {
             boolean hasUsername = false;
             boolean hasPassword = false;
             if (!this.usernameEditText.getText().toString().isEmpty()) {
@@ -118,18 +106,13 @@ public class LoginFragment extends Fragment {
         private void onLoginButtonClick() {
             String password = this.passwordEditText.getText().toString();
             String username = this.usernameEditText.getText().toString();
-            ((LoginFragmentListener) getActivity()).startLogin(username,password);
+            ((LoginFragmentListener) getActivity()).onStartLogin(username, password);
 
         }
-
-
-
     }
 
     public interface LoginFragmentListener {
-        public void startLogin(String username, String password);
+        public void onStartLogin(String username, String password);
     }
-
-
 
 }

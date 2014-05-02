@@ -158,6 +158,7 @@ public class SyncDatabaseIntentService extends IntentService {
             databaseSyncer.setFetchAll();
         }
 
+
         JSONObject jsonObject = databaseSyncer.fetchFromServer();
         if (jsonObject != null) {
 

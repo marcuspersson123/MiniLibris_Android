@@ -2,9 +2,7 @@ package me.webbdev.minilibris.ui;
 
 import android.app.Activity;
 
-import android.app.Fragment;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -30,50 +28,60 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import me.webbdev.minilibris.R;
 
+// A reservation task that creates a reservation on the server.
+// Extends TaskFragment
 public class CreateReservationTaskFragment extends TaskFragment {
+
+    private long book_id;
+    private int year;
+    private int month;
+    private int day;
 
     private static final String TAG = "CreateReservationTaskFragment";
     private static final String url = "http://minilibris.webbdev.me/minilibris/api/reservation";
+
     private String result;
+    private int userId;
+
+    // A few setters to provide the necessary data to do the task.
 
     public void setBookId(long book_id) {
         this.book_id = book_id;
     }
 
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public void setYear(int mYear) {
-        this.mYear = mYear;
+        this.year = mYear;
     }
 
     public void setMonth(int mMonth) {
-        this.mMonth = mMonth;
+        this.month = mMonth;
     }
 
     public void setDay(int mDay) {
-        this.mDay = mDay;
+        this.day = mDay;
     }
+
+    // A getter for the result of the task.
 
     public String getResult() {
         return result;
     }
 
-    private long book_id;
-    private int mYear;
-    private int mMonth;
-    private int mDay;
 
     public CreateReservationTaskFragment() {
         super();
     }
 
-    // This is an invisible fragment. However, to be able to instantiate it in xml it has to return a view.
-    // Returns an empty LinearLayout
+    // This is an invisible fragment, though it has to return a view.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -81,6 +89,7 @@ public class CreateReservationTaskFragment extends TaskFragment {
                 container, false);
     }
 
+    // The asynchronous task:
     // Creates a JSON object that is POST:ed to the server.
     // If an error occurred the "result" variable holds the message.
     // If there is an array of errors, the first message will be in "result"
@@ -88,8 +97,8 @@ public class CreateReservationTaskFragment extends TaskFragment {
         String result = null;
         String begins = getBegins();
         String ends = getEnds();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("user_id", -1);
+     //   SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE);
+     //   int userId = sharedPreferences.getInt("user_id", -1);
 
         try {
             JSONObject json = new JSONObject();
@@ -117,15 +126,12 @@ public class CreateReservationTaskFragment extends TaskFragment {
                 if (jsonString != null) {
                     try {
                         JSONObject jsonobject = new JSONObject(jsonString);
-                        if (jsonobject != null) {
                             JSONArray errors = jsonobject.optJSONArray("errors");
                             if (errors != null && errors.length()>0) {
                                 JSONObject error = errors.optJSONObject(0);
                                 String summary = error.getString("summary");
                                 result = summary;
                             }
-
-                        }
                     } catch (JSONException e) {
                         result = "Serverfel";
                     }
@@ -151,7 +157,7 @@ public class CreateReservationTaskFragment extends TaskFragment {
     // Returns the "ends" variable that is to be sent to the server
     private String getEnds() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(mYear, mMonth, mDay);
+        calendar.set(year, month, day);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         calendar.add(Calendar.DAY_OF_MONTH,20);
         String ends = simpleDateFormat.format(calendar.getTime());
@@ -161,7 +167,7 @@ public class CreateReservationTaskFragment extends TaskFragment {
     // Returns the "begins" variable that is to be sent to the server
     private String getBegins() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(mYear, mMonth, mDay);
+        calendar.set(year, month, day);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String begins = simpleDateFormat.format(calendar.getTime());
         return begins;

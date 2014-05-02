@@ -12,16 +12,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import me.webbdev.minilibris.database.MiniLibrisContract;
 
-/**
- * Created by marcusssd on 2014-04-22.
- */
+
 public class ReservationsSynchronizer {
 
     private static String TAG = "ReservationsSynchronizer";
@@ -85,17 +79,14 @@ public class ReservationsSynchronizer {
 
     }
 
+    // Deletes a reservation locally
     private boolean deleteReservation(int reservationId) {
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Reservations.CONTENT_URI, reservationId);
         int deleteCount = this.context.getContentResolver().delete(singleUri, null, null);
-        if (deleteCount < 1) {
-            return false;
-        } else {
-            return true;
-        }
-
+        return deleteCount >= 1;
     }
 
+    // Updates a reservation locally
     private boolean updateReservation(int reservationId, JSONObject jsonObject) {
         ContentValues contentValues = this.getContentValues(jsonObject);
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Reservations.CONTENT_URI, reservationId);
@@ -103,8 +94,7 @@ public class ReservationsSynchronizer {
         return updatedCount>0;
     }
 
-    // inserts a book in the table.
-    // returns false if something went wrong
+    // Inserts a reservation locally
     private boolean insertReservation(JSONObject jsonObject) {
 
         ContentValues contentValues = this.getContentValues(jsonObject);
@@ -116,6 +106,7 @@ public class ReservationsSynchronizer {
         return false;
     }
 
+    // Copies a reservation in JSON format to ContentValues format.
     private ContentValues getContentValues(JSONObject jsonObject) {
         try {
 

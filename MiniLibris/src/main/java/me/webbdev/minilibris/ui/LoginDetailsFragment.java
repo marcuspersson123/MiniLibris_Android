@@ -1,7 +1,6 @@
 package me.webbdev.minilibris.ui;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -77,7 +76,7 @@ private TextView usernameTextView;
         }
 
         private void onGotoApp() {
-            ((LoginDetailsFragmentListener) getActivity()).onGotoApp();
+            ((LoginDetailsFragmentListener) getActivity()).onStartUsingApp();
         }
 
         private void onLogout() {
@@ -99,7 +98,7 @@ firstnameTextView.setText(sharedPreferences.getString("first_name",""));
     }
 
     public interface LoginDetailsFragmentListener {
-        public void onGotoApp();
+        public void onStartUsingApp();
         public void onLogout();
     }
 

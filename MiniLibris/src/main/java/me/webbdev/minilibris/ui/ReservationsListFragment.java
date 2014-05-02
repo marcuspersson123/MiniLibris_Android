@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -19,19 +18,22 @@ import android.widget.TextView;
 import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.database.MiniLibrisContract;
 
+// Displays a list of reservations.
 public class ReservationsListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     public ReservationsCursorAdapter adapter;
-    private Context mContext;
+    private Context context;
     private int bookId;
     private int userId;
 
     public interface ReservationsListFragmentListener {
-    public int getUserId();
+        public int getUserId();
         public int getBookId();
+        public void onStartDeleteReservationTask(int reservationId);
     }
 
+    // Necessary public empty constructor.
     public ReservationsListFragment() {
     }
 
@@ -40,14 +42,14 @@ public class ReservationsListFragment extends ListFragment implements
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_reservations_list,
                 container, false);
-        ListView lv = (ListView) rootView.findViewById(android.R.id.list);
         return rootView;
     }
 
+    // The activity is created. Get the necessary data and start creating a loader.
     @Override
     public void onActivityCreated(final Bundle bundle) {
         super.onActivityCreated(bundle);
-        mContext = this.getActivity().getApplicationContext();
+        context = this.getActivity().getApplicationContext();
         this.bookId = ((ReservationsListFragmentListener) getActivity()).getBookId();
         this.userId = ((ReservationsListFragmentListener) getActivity()).getUserId();
         getLoaderManager().initLoader(0, null, this);
@@ -59,9 +61,9 @@ public class ReservationsListFragment extends ListFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection = MiniLibrisContract.Reservations.ALL_FIELDS;
-        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + " = ?";
-        String[] whereVariables = new String[]{String.valueOf(this.bookId)};
-        CursorLoader cursorLoader = new CursorLoader(mContext,
+        String whereClause = MiniLibrisContract.Reservations.BOOK_ID + "=? AND " + MiniLibrisContract.Reservations.IS_LENT + "=?";
+        String[] whereVariables = new String[]{String.valueOf(this.bookId), "0"};
+        CursorLoader cursorLoader = new CursorLoader(context,
                 MiniLibrisContract.Reservations.CONTENT_URI, projection, whereClause, whereVariables, null);
         return cursorLoader;
     }
@@ -119,6 +121,6 @@ public class ReservationsListFragment extends ListFragment implements
 
     // Tells the activity to delete through a headless fragment.
     private void onDeleteReservation(int reservationId) {
-        ((BookDetailActivity) getActivity()).onStartDeleteReservationTask(reservationId);
+        ((ReservationsListFragmentListener) getActivity()).onStartDeleteReservationTask(reservationId);
     }
 }
