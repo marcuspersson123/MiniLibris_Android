@@ -56,13 +56,6 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
 
     }
 
-    private void startServerSynchronizing() {
-        // When testing on Shared network GCM rarely works. Update immediately.
-        Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
-        startService(syncDatabaseIntent);
-    }
-
     @Override
     public void onPostExecute(int fragmentId) {
         String fragmentMessage;

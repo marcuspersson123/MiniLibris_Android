@@ -27,15 +27,24 @@ public class BookDetailFragment extends Fragment {
     private TextView authorTextView;
     private TextView yearTextView;
     private TextView publisherTextView;
-    private ImageView bookImageView;
+    private TextView lentToDateTextView;
+    private String title = "";
+    private String author ="";
+    private int year = 0;
+    private String publisher = "";
+    private String endsDate = "";
+    private TextView lentToDateLabelTextView;
 
     // The interface is intended to be implemented by the containing Activity
     public interface BookDetailFragmentListener {
         public int getBookId();
+        public int getUserId();
     }
 
     // Necessary empty constructor.
+    // Retain the instance to avoid fetching data on orientation change
     public BookDetailFragment() {
+        setRetainInstance(true);
     }
 
     // Create the views from xml.
@@ -48,7 +57,7 @@ public class BookDetailFragment extends Fragment {
         this.authorTextView = (TextView) view.findViewById(R.id.authorTextView);
         this.yearTextView = (TextView) view.findViewById(R.id.yearTextView);
         this.publisherTextView = (TextView) view.findViewById(R.id.publisherTextView);
-        this.bookImageView = (ImageView) view.findViewById(R.id.bookImageView);
+        //ImageView bookImageView = (ImageView) view.findViewById(R.id.bookImageView);
         this.reserveImageButton = (ImageButton) view.findViewById(R.id.reserveImageButton);
         this.reserveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +65,8 @@ public class BookDetailFragment extends Fragment {
                 onReserveButtonClick();
             }
         });
+        this.lentToDateTextView = (TextView) view.findViewById(R.id.lentToDateTextView);
+        this.lentToDateLabelTextView = (TextView) view.findViewById(R.id.lentToDateLabelTextView);
 
         return view;
     }
@@ -67,28 +78,44 @@ public class BookDetailFragment extends Fragment {
     }
 
     // The activity is ready.
-    // Now we know which book to display.
+    // Now we can know which book to display.
     // Get and show the book information.
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
 
+        // we retain the instance, so we don't need to fetch the data twice.
         if (this.book_id < 0) {
             this.book_id = ((BookDetailFragmentListener) getActivity()).getBookId();
 
-            Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, this.book_id);
-            Cursor cursor = this.getActivity().getContentResolver().query(singleUri, MiniLibrisContract.Books.ALL_FIELDS, null, null, null);
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                String title = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.TITLE));
-                String author = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.AUTHOR));
-                int year = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Books.YEAR));
-                String publisher = cursor.getString(cursor.getColumnIndex(MiniLibrisContract.Books.PUBLISHER));
-                this.titleTextView.setText(title);
-                this.authorTextView.setText(author);
-                this.yearTextView.setText(String.valueOf(year));
-                this.publisherTextView.setText(publisher);
+            Uri getBookUri = ContentUris.withAppendedId(MiniLibrisContract.Books.CONTENT_URI, this.book_id);
+            Cursor bookCursor = this.getActivity().getContentResolver().query(getBookUri, MiniLibrisContract.Books.ALL_FIELDS, null, null, null);
+            if (bookCursor.getCount() > 0) {
+                bookCursor.moveToFirst();
+                 title = bookCursor.getString(bookCursor.getColumnIndex(MiniLibrisContract.Books.TITLE));
+                author = bookCursor.getString(bookCursor.getColumnIndex(MiniLibrisContract.Books.AUTHOR));
+                 year = bookCursor.getInt(bookCursor.getColumnIndex(MiniLibrisContract.Books.YEAR));
+                 publisher = bookCursor.getString(bookCursor.getColumnIndex(MiniLibrisContract.Books.PUBLISHER));
             }
+            bookCursor.close();
+            Uri getReservationUri = MiniLibrisContract.Reservations.CONTENT_URI;
+            int userId = ((BookDetailFragmentListener) getActivity()).getUserId();
+            Cursor reservationCursor = this.getActivity().getContentResolver().query(getReservationUri, MiniLibrisContract.Reservations.ALL_FIELDS, "is_lent=? and book_id=?", new String[] {"1",String.valueOf(book_id)}, null);
+            if (reservationCursor.getCount() > 0) {
+                reservationCursor.moveToFirst();
+                endsDate = reservationCursor.getString(reservationCursor.getColumnIndex(MiniLibrisContract.Reservations.ENDS));
+            }
+            reservationCursor.close();
+        }
+        this.titleTextView.setText(title);
+        this.authorTextView.setText(author);
+        this.yearTextView.setText(String.valueOf(year));
+        this.publisherTextView.setText(publisher);
+        if (endsDate != "") {
+            this.lentToDateTextView.setText(endsDate);
+        } else {
+            this.lentToDateTextView.setVisibility(View.GONE);
+            this.lentToDateLabelTextView.setVisibility(View.GONE);
         }
     }
 

@@ -12,6 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import me.webbdev.minilibris.database.MiniLibrisContract;
 
@@ -66,6 +68,21 @@ public class ReservationsSynchronizer {
                 }
 
             }
+            // Delete reservations that ends before today
+            Date date = new Date();
+            String todayString= new SimpleDateFormat("yyyy-MM-dd").format(date);
+            Uri allUri = MiniLibrisContract.Reservations.CONTENT_URI;
+            Cursor cursor = this.context.getContentResolver().query(allUri, new String[] {MiniLibrisContract.Reservations._ID}, MiniLibrisContract.Reservations.ENDS + "<?", new String[] {todayString}, null);
+            while (cursor.moveToNext()) {
+               int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
+                    deleteReservation(reservationId);
+
+            }
+
+                cursor.close();
+
+
+
             if (success) {
                 return lastServerSync;
             } else {

@@ -42,14 +42,15 @@ public class SyncDatabaseIntentService extends IntentService {
     // Displays a notification and removes it
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (isRegularCloudMessage(intent) || isStartSyncEvent(intent)) {
+        if (isRegularCloudMessage(intent) || isSyncAllEvent(intent)) {
             // Try to determine internet connectivity. It is not possible to do that reliably. An IOException will probably be the result.
             if (isNetworkConnected()) {
                 this.removeNotification(INTERNET_FAIL_NOTIFICATION_ID);
                 this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synchronizing database");
                 boolean success = false;
                 try {
-                    success = syncAllTables();
+
+                    success = syncAllTables(isSyncAllEvent(intent));
                     if (success) {
                         this.removeNotification(SERVER_FAIL_NOTIFICATION_ID);
                     } else {
@@ -91,7 +92,7 @@ public class SyncDatabaseIntentService extends IntentService {
         notificationManager.cancel(notificationId);
     }
 
-    private boolean isStartSyncEvent(Intent intent) {
+    private boolean isSyncAllEvent(Intent intent) {
         return intent.hasExtra(START_SYNC);
     }
 
@@ -145,16 +146,20 @@ public class SyncDatabaseIntentService extends IntentService {
 
     // Synchronises rows from all tables
     // Returns true if all tables where synchronized
-    public boolean syncAllTables() throws IOException {
+    public boolean syncAllTables(boolean syncAll) throws IOException {
         DatabaseFetcher databaseSyncer = new DatabaseFetcher(this.getApplicationContext());
         databaseSyncer.setUrl(url);
 
-        // The databaseFetcher fetches from the last successful update, unless telling it otherwise
-        Timestamp lastSuccessfulSync = databaseSyncer.getLastSuccessfulSync();
-        Timestamp aDayAgo = new Timestamp(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        if (!syncAll) {
+            // The databaseFetcher fetches from the last successful update, unless telling it otherwise
+            Timestamp lastSuccessfulSync = databaseSyncer.getLastSuccessfulSync();
+            Timestamp aDayAgo = new Timestamp(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
 
-        // Very old data, books can have been old et al. So, fetch the entire database again
-        if (lastSuccessfulSync.before(aDayAgo)) {
+            // Very old data, books can have been old et al. So, fetch the entire database again
+            if (lastSuccessfulSync.before(aDayAgo)) {
+                databaseSyncer.setFetchAll();
+            }
+        } else {
             databaseSyncer.setFetchAll();
         }
 
