@@ -2,6 +2,7 @@ package me.webbdev.minilibris.ui;
 
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -108,5 +109,12 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         mCreateReservationTaskFragment.setMonth(month);
         mCreateReservationTaskFragment.setDay(day);
         mCreateReservationTaskFragment.start();
+    }
+
+    public static Intent createStartIntent(Context context, int id, int userId) {
+        Intent intent = new Intent(context, BookDetailActivity.class);
+        intent.putExtra("id", id);
+        intent.putExtra("user_id", userId);
+        return intent;
     }
 }

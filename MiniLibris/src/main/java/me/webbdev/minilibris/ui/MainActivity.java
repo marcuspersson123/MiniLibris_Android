@@ -107,6 +107,8 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         }
     }
 
+    // Setup the scheduling of alarming the user of important messages.
+    // It is OK to set the same Alarm several times if the PendingIntent is the same.
     private void setupAlarm() {
         Calendar updateTime = Calendar.getInstance();
         //updateTime.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -276,7 +278,7 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                 startActivity(intent);
                 break;
             case R.id.action_synchronize:
-                onSynchronize();
+                onSynchronizeAll();
 
                 break;
             case R.id.action_contact:
@@ -287,10 +289,10 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         return true;
     }
 
-    private void onSynchronize() {
-        // Synchronizes from beginning of time
+    // The user issues a synchronize all event.
+    // So, start synchronizing from beginning of time
+    private void onSynchronizeAll() {
         SyncDatabaseIntentService.start(this, true);
-        DailyAlarmIntentService.start(this);
     }
 
     // Show the Contact Activity
@@ -303,11 +305,8 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
     // Event from BooksListFragment
     @Override
     public void onBookSelected(int id) {
-        Intent intent = new Intent(this,BookDetailActivity.class);
-        intent.putExtra("id", (int) id);
-        intent.putExtra("user_id", getUserId());
+        Intent intent = BookDetailActivity.createStartIntent(this, id, getUserId());
         startActivity(intent);
-
     }
 
     @Override
@@ -331,7 +330,7 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
     }
 
     /**
-     * This adapter returns a fragment corresponding to
+     * An inner class adapter that returns a fragment corresponding to
      * one of the sections.
      */
     class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -340,30 +339,31 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             super(fm);
         }
 
+        // Returns a BooksListFragment that is set in a "mode" to display e.g. only lent books
         @Override
         public ListFragment getItem(int position) {
             BooksListFragment fragment = new BooksListFragment();
-            Bundle bundle = new Bundle();
+            Bundle bundle = null;
             switch (position) {
                 case 0:
                     // show all books
-                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.ALL_BOOKS_MODE);
+                    bundle = BooksListFragment.createArgumentsBundle(BooksListFragment.ALL_BOOKS_MODE);
                     break;
                 case 1:
                     // show reserved books
-                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.RESERVED_BOOKS_MODE);
+                    bundle = BooksListFragment.createArgumentsBundle(BooksListFragment.RESERVED_BOOKS_MODE);
                     break;
                 case 2:
                     // books to fetch mode
-                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.BOOKS_TO_FETCH_MODE);
+                    bundle = BooksListFragment.createArgumentsBundle(BooksListFragment.BOOKS_TO_FETCH_MODE);
                     break;
                 case 3:
                     // lent books mode
-                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.LENT_BOOKS_MODE);
+                    bundle = BooksListFragment.createArgumentsBundle(BooksListFragment.LENT_BOOKS_MODE);
                     break;
                 case 4:
                     // books to return mode
-                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.BOOKS_TO_RETURN_MODE);
+                    bundle = BooksListFragment.createArgumentsBundle(BooksListFragment.BOOKS_TO_RETURN_MODE);
                     break;
 
             }
@@ -371,11 +371,13 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             return (ListFragment) fragment;
         }
 
+        // How many pages are there?
         @Override
         public int getCount() {
             return 5;
         }
 
+        // Return the title of the page at the position
         @Override
         public CharSequence getPageTitle(int position) {
             Locale l = Locale.getDefault();

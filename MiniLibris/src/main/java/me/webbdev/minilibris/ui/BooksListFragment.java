@@ -38,6 +38,12 @@ public class BooksListFragment extends ListFragment implements
     static final int RESERVED_BOOKS_MODE = 1;
     static final int LENT_BOOKS_MODE = 2;
 
+    public static Bundle createArgumentsBundle(int mode) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(BooksListFragment.MODE_KEY, mode);
+        return bundle;
+    }
+
     public interface BooksListFragmentListener {
         public void onBookSelected(int id);
     }

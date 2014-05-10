@@ -64,6 +64,8 @@ public class SyncDatabaseIntentService extends IntentService {
             this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Not connected to the Internet");
         }
 
+        // Update important notifications, such as if books are available to fetch at MiniLibris
+        DailyAlarmIntentService.start(this);
         // If this service was called to be wakeful, notify the the WakefulBroadCastReceiver
         CloudBroadcastReceiver.completeWakefulIntent(intent);
     }
@@ -91,30 +93,6 @@ public class SyncDatabaseIntentService extends IntentService {
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(notificationId);
     }
-
-    /*
-    private boolean isSyncAllEvent(Intent intent) {
-        return intent.hasExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY);
-    }
-*/
-/*
-    private boolean isRegularCloudMessage(Intent intent) {
-        GoogleCloudMessaging googleCloudMessaging = GoogleCloudMessaging.getInstance(this);  // "this" is the context
-        String messageType = googleCloudMessaging.getMessageType(intent);
-
-        if (GoogleCloudMessaging.
-                MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-        } else if (GoogleCloudMessaging.
-                MESSAGE_TYPE_DELETED.equals(messageType)) {
-
-        } else if (GoogleCloudMessaging.
-                MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-            // A regular GCM message was received
-            return true;
-        }
-        return false;
-    }
-*/
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void showNotification(int notificationId, String msg) {
@@ -205,7 +183,6 @@ public class SyncDatabaseIntentService extends IntentService {
     }
 
     public static void start(Context context, boolean synchronizeFromBeginningOfTime) {
-        // When testing on Shared network GCM rarely works. Update immediately.
         Intent intent = new Intent(context, SyncDatabaseIntentService.class);
         intent.putExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY, synchronizeFromBeginningOfTime);
         context.startService(intent);
