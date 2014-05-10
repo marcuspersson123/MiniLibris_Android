@@ -2,6 +2,7 @@ package me.webbdev.minilibris.ui;
 
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -9,8 +10,10 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.ListFragment;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +31,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
+import me.webbdev.minilibris.services.DailyAlarmIntentService;
+import me.webbdev.minilibris.services.DailyAlarmReceiver;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
 public class MainActivity extends Activity implements BooksListFragment.BooksListFragmentListener, TaskFragment.TaskFragmentCallback {
@@ -67,11 +72,14 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             return;
         }
         if (savedInstanceState == null) {
-            // App is created.
-            // Synchronize the database
-            Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-            syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
-            startService(syncDatabaseIntent);
+            // App is just started.
+            // Synchronize the database from beginning of time
+            SyncDatabaseIntentService.start(this,true);
+            DailyAlarmIntentService.start(this);
+
+
+            // Make sure the daily alarm is setup
+            setupAlarm();
         }
 
         setContentView(R.layout.activity_main);
@@ -99,24 +107,31 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         }
     }
 
+    private void setupAlarm() {
+        Calendar updateTime = Calendar.getInstance();
+        //updateTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        updateTime.set(Calendar.HOUR_OF_DAY, 8);
+        updateTime.set(Calendar.MINUTE, 0);
+
+        Intent downloader = new Intent(this, DailyAlarmReceiver.class);
+        PendingIntent recurringDownload = PendingIntent.getBroadcast(this,
+                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarms = (AlarmManager) getSystemService(
+                Context.ALARM_SERVICE);
+        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+                updateTime.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, recurringDownload);
+    }
+
     private int getUserId() {
         SharedPreferences sharedPreferences = getSharedPreferences("user_info", Activity.MODE_PRIVATE);
         int userId = sharedPreferences.getInt("user_id", -1);
         return userId;
     }
 
-    private void startServerSynchronizing() {
-        // When testing on Shared network GCM rarely works. Update immediately.
-        Intent syncDatabaseIntent = new Intent(this, SyncDatabaseIntentService.class);
-        syncDatabaseIntent.putExtra(SyncDatabaseIntentService.START_SYNC, 1);
-        startService(syncDatabaseIntent);
-    }
-
     /**
      * Gets the current registration ID for application on GCM service.
-     * <p/>
      * If result is empty, the app needs to register.
-     *
      * @return registration ID, or empty string if there is no existing
      * registration ID.
      */
@@ -261,7 +276,8 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                 startActivity(intent);
                 break;
             case R.id.action_synchronize:
-                startServerSynchronizing();
+                onSynchronize();
+
                 break;
             case R.id.action_contact:
                 onShowContactActivity();
@@ -269,6 +285,12 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
         }
 
         return true;
+    }
+
+    private void onSynchronize() {
+        // Synchronizes from beginning of time
+        SyncDatabaseIntentService.start(this, true);
+        DailyAlarmIntentService.start(this);
     }
 
     // Show the Contact Activity
@@ -332,9 +354,18 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                     bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.RESERVED_BOOKS_MODE);
                     break;
                 case 2:
+                    // books to fetch mode
+                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.BOOKS_TO_FETCH_MODE);
+                    break;
+                case 3:
                     // lent books mode
                     bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.LENT_BOOKS_MODE);
                     break;
+                case 4:
+                    // books to return mode
+                    bundle.putInt(BooksListFragment.MODE_KEY, BooksListFragment.BOOKS_TO_RETURN_MODE);
+                    break;
+
             }
             fragment.setArguments(bundle);
             return (ListFragment) fragment;
@@ -342,7 +373,7 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
 
         @Override
         public int getCount() {
-            return 3;
+            return 5;
         }
 
         @Override
@@ -354,7 +385,11 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
                 case 1:
                     return getString(R.string.reserved_books).toUpperCase(l);
                 case 2:
+                    return getString(R.string.books_to_fetch).toUpperCase(l);
+                case 3:
                     return getString(R.string.lent_books).toUpperCase(l);
+                case 4:
+                    return getString(R.string.to_return).toUpperCase(l);
             }
             return null;
         }

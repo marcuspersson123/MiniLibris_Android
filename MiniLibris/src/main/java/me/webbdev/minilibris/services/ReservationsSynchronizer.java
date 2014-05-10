@@ -69,19 +69,17 @@ public class ReservationsSynchronizer {
 
             }
             // Delete reservations that ends before today
+            // Keep reservations that are lent
             Date date = new Date();
-            String todayString= new SimpleDateFormat("yyyy-MM-dd").format(date);
+            String todayString = new SimpleDateFormat("yyyy-MM-dd").format(date);
             Uri allUri = MiniLibrisContract.Reservations.CONTENT_URI;
-            Cursor cursor = this.context.getContentResolver().query(allUri, new String[] {MiniLibrisContract.Reservations._ID}, MiniLibrisContract.Reservations.ENDS + "<?", new String[] {todayString}, null);
+            Cursor cursor = this.context.getContentResolver().query(allUri, new String[]{MiniLibrisContract.Reservations._ID}, MiniLibrisContract.Reservations.ENDS + "<? and " + MiniLibrisContract.Reservations.IS_LENT + "=?", new String[]{todayString, "0"}, null);
             while (cursor.moveToNext()) {
-               int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
-                    deleteReservation(reservationId);
-
+                int reservationId = cursor.getInt(cursor.getColumnIndex(MiniLibrisContract.Reservations._ID));
+                deleteReservation(reservationId);
             }
 
-                cursor.close();
-
-
+            cursor.close();
 
             if (success) {
                 return lastServerSync;
@@ -108,14 +106,14 @@ public class ReservationsSynchronizer {
         ContentValues contentValues = this.getContentValues(jsonObject);
         Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.Reservations.CONTENT_URI, reservationId);
         int updatedCount = this.context.getContentResolver().update(singleUri, contentValues, null, null);
-        return updatedCount>0;
+        return updatedCount > 0;
     }
 
     // Inserts a reservation locally
     private boolean insertReservation(JSONObject jsonObject) {
 
         ContentValues contentValues = this.getContentValues(jsonObject);
-        if (contentValues!=null) {
+        if (contentValues != null) {
             Uri todoUri = this.context.getContentResolver().insert(MiniLibrisContract.Reservations.CONTENT_URI, contentValues);
             boolean success = todoUri.getPathSegments().size() > 0;
             return success;

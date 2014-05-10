@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MiniLibris</string>
-    <string name="action_login">Inloggning</string>
+    <string name="action_login">Byt användare</string>
     <string name="all_books">Alla böcker</string>
     <string name="lent_books">Lånade</string>
     <string name="reserved_books">Reserverade</string>
@@ -19,5 +19,7 @@
     <string name="was_reserved">Reserverad</string>
     <string name="failed_to_reserve">Fel! Gick inte att reservera.</string>
     <string name="title_activity_contact">ContactActivity</string>
+    <string name="books_to_fetch">Kan hämtas</string>
+    <string name="to_return">Återlämnas</string>
 
 </resources>

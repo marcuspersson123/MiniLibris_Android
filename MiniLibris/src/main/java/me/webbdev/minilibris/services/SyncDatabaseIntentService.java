@@ -2,6 +2,7 @@ package me.webbdev.minilibris.services;
 
 import android.annotation.TargetApi;
 import android.app.IntentService;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,12 +11,11 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,61 +30,61 @@ public class SyncDatabaseIntentService extends IntentService {
     public static final int SERVER_FAIL_NOTIFICATION_ID = 2;
     public static final int INTERNET_FAIL_NOTIFICATION_ID = 3;
     private static final String url = "http://minilibris.webbdev.me/minilibris/api/databaseChanges";
-    public static final String START_SYNC = "start_sync";
+    public static final String SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY = "SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY";
 
     public SyncDatabaseIntentService() {
         super("Sync database service");
     }
 
     // Synchronizes the local database.
-    // Does its job if it was a valid cloud message, or if the intent has the extra "START_SYNC".
-    // Tries to synchronize only the latest changes.
+    // Tries to synchronize only the latest changes, unless told to synchronize from beginning of time.
     // Displays a notification and removes it
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (isRegularCloudMessage(intent) || isSyncAllEvent(intent)) {
-            // Try to determine internet connectivity. It is not possible to do that reliably. An IOException will probably be the result.
-            if (isNetworkConnected()) {
-                this.removeNotification(INTERNET_FAIL_NOTIFICATION_ID);
-                this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synchronizing database");
-                boolean success = false;
-                try {
+        boolean synchronizeAll = intent.getBooleanExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY, true);
 
-                    success = syncAllTables(isSyncAllEvent(intent));
-                    if (success) {
-                        this.removeNotification(SERVER_FAIL_NOTIFICATION_ID);
-                    } else {
-                        this.showNotification(SERVER_FAIL_NOTIFICATION_ID, "Failed to synchronize");
-                    }
-                } catch (IOException e) {
-                    this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "No connection to MiniLibris server");
+        // Try to determine internet connectivity. It is not possible to do that reliably. An IOException will probably be the result.
+        if (isNetworkConnected()) {
+            this.removeNotification(INTERNET_FAIL_NOTIFICATION_ID);
+            this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synchronizing database");
+            boolean success = false;
+            try {
+                success = syncAllTables(synchronizeAll);
+                if (success) {
+                    this.removeNotification(SERVER_FAIL_NOTIFICATION_ID);
+                } else {
+                    this.showNotification(SERVER_FAIL_NOTIFICATION_ID, "Failed to synchronize");
                 }
-
-                this.removeNotification(SYNCHRONIZING_NOTIFICATION_ID);
-            } else {
-                this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Not connected to the Internet");
+            } catch (IOException e) {
+                this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "No connection to MiniLibris server");
             }
+
+            this.removeNotification(SYNCHRONIZING_NOTIFICATION_ID);
+        } else {
+            this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Not connected to the Internet");
         }
 
+        // If this service was called to be wakeful, notify the the WakefulBroadCastReceiver
         CloudBroadcastReceiver.completeWakefulIntent(intent);
     }
 
+    // Try to determine internet connectivity. It is not possible to do that reliably.
     private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo[] info = cm.getAllNetworkInfo();
-        if (info == null) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] allNetworkInfo = connectivityManager.getAllNetworkInfo();
+        if (allNetworkInfo == null) {
             // There are no active networks.
             return false;
-        } else if (info != null)
-            for (int i = 0; i < info.length; i++) {
-                if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+        } else if (allNetworkInfo != null)
+            for (int i = 0; i < allNetworkInfo.length; i++) {
+                if (allNetworkInfo[i].getState() == NetworkInfo.State.CONNECTED) {
                     return true;
                 }
             }
         return false;
     }
 
-    // Removes the notification that was set at the beginning
+    // Removes any old notification that was set earlier
     private void removeNotification(int notificationId) {
         NotificationManager notificationManager;
         notificationManager = (NotificationManager)
@@ -92,10 +92,12 @@ public class SyncDatabaseIntentService extends IntentService {
         notificationManager.cancel(notificationId);
     }
 
+    /*
     private boolean isSyncAllEvent(Intent intent) {
-        return intent.hasExtra(START_SYNC);
+        return intent.hasExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY);
     }
-
+*/
+/*
     private boolean isRegularCloudMessage(Intent intent) {
         GoogleCloudMessaging googleCloudMessaging = GoogleCloudMessaging.getInstance(this);  // "this" is the context
         String messageType = googleCloudMessaging.getMessageType(intent);
@@ -112,6 +114,7 @@ public class SyncDatabaseIntentService extends IntentService {
         }
         return false;
     }
+*/
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void showNotification(int notificationId, String msg) {
@@ -146,11 +149,11 @@ public class SyncDatabaseIntentService extends IntentService {
 
     // Synchronises rows from all tables
     // Returns true if all tables where synchronized
-    public boolean syncAllTables(boolean syncAll) throws IOException {
+    public boolean syncAllTables(boolean synchronizeFromBeginningOfTime) throws IOException {
         DatabaseFetcher databaseSyncer = new DatabaseFetcher(this.getApplicationContext());
         databaseSyncer.setUrl(url);
 
-        if (!syncAll) {
+        if (!synchronizeFromBeginningOfTime) {
             // The databaseFetcher fetches from the last successful update, unless telling it otherwise
             Timestamp lastSuccessfulSync = databaseSyncer.getLastSuccessfulSync();
             Timestamp aDayAgo = new Timestamp(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
@@ -197,10 +200,20 @@ public class SyncDatabaseIntentService extends IntentService {
             databaseSyncer.setLastSuccessfulSync(lastServerSync);
 
             return true;
-
-
         }
         return false;
     }
 
+    public static void start(Context context, boolean synchronizeFromBeginningOfTime) {
+        // When testing on Shared network GCM rarely works. Update immediately.
+        Intent intent = new Intent(context, SyncDatabaseIntentService.class);
+        intent.putExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY, synchronizeFromBeginningOfTime);
+        context.startService(intent);
+    }
+
+    public static void startWakeful(WakefulBroadcastReceiver wakefulBroadcastReceiver, Context context, boolean synchronizeFromBeginningOfTime) {
+        Intent intent = new Intent(context, SyncDatabaseIntentService.class);
+        intent.putExtra(SYNCHRONIZE_FROM_BEGINNING_OF_TIME_KEY, synchronizeFromBeginningOfTime);
+        wakefulBroadcastReceiver.startWakefulService(context, intent);
+    }
 }

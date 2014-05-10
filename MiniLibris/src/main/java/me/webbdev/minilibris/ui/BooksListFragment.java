@@ -23,10 +23,15 @@ import me.webbdev.minilibris.R;
 
 import android.widget.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class BooksListFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
 
     public static final String MODE_KEY = "MODE_KEY";
+    public static final int BOOKS_TO_RETURN_MODE = 3;
+    public static final int BOOKS_TO_FETCH_MODE = 4;
     public SimpleCursorAdapter adapter;
     private Context mContext;
     static final int ALL_BOOKS_MODE = 0;
@@ -77,6 +82,9 @@ public class BooksListFragment extends ListFragment implements
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Activity.MODE_PRIVATE);
         int userId = sharedPreferences.getInt("user_id", -1);
         String sortOrder = MiniLibrisContract.Books.TITLE + " ASC";
+        Date date = new Date();
+        String todayString = new SimpleDateFormat("yyyy-MM-dd").format(date);
+        //todayString += " 00:00:00";
         switch (getArguments().getInt(MODE_KEY)) {
             case ALL_BOOKS_MODE:
                 cursorLoader = new CursorLoader(mContext,
@@ -88,10 +96,46 @@ public class BooksListFragment extends ListFragment implements
                 cursorLoader = new CursorLoader(mContext,
                         stttingleUri, databaseFields, "is_lent=?", new String[]{"0"}, sortOrder);
                 break;
+            case BOOKS_TO_FETCH_MODE:
+
+                Uri sttingleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
+
+                // Had problems with using parameters here for an unknown reason.
+                // Thus, a long where clause follows.
+                String where = "is_lent=0 and date(begins)<=date('" + todayString + "') and date(ends)>=date('"+todayString+"')";
+                cursorLoader = new CursorLoader(mContext,
+                        sttingleUri, databaseFields, where, null, sortOrder);
+
+/*                cursorLoader = new CursorLoader(mContext,
+                        sttingleUri, MiniLibrisContract.Books.ALL_FIELDS, "is_lent=? and begins<='?' and ends>='?'", new String[]{"0",todayString, todayString}, sortOrder);
+*/
+
+
+
+/*                Uri sttingleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
+                cursorLoader = new CursorLoader(mContext,
+                        sttingleUri, databaseFields, "is_lent=? and Datetime(begins)<=Datetime('?') and DateTime(ends)>=Datetime('?')", new String[]{"0",todayString, todayString}, sortOrder);
+ */
+                break;
+
             case LENT_BOOKS_MODE:
+                // Had problems with using parameters here for an unknown reason.
+                // Thus, a long where clause follows.
+                String where2 = "is_lent=1 and date(ends)>=date('"+todayString+"')";
+
                 Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
                 cursorLoader = new CursorLoader(mContext,
-                        singleUri, databaseFields, "is_lent=?", new String[]{"1"}, sortOrder);
+                        singleUri, databaseFields, where2, null, sortOrder);
+                break;
+            case BOOKS_TO_RETURN_MODE:
+
+                // Had problems with using parameters here for an unknown reason.
+                // Thus, a long where clause follows.
+                String where3 = "is_lent=1 and date(ends)<date('"+todayString+"')";
+
+                Uri singleUri2 = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
+                cursorLoader = new CursorLoader(mContext,
+                        singleUri2, databaseFields, where3, null, sortOrder);
                 break;
         }
         return cursorLoader;

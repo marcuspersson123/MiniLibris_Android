@@ -17,12 +17,14 @@
             <TextView
                 android:layout_height="wrap_content"
                 android:layout_width="150dp"
+android:textStyle="bold"
                 android:gravity="right"
                 android:text="Användarnamn:" android:layout_marginRight="7dp"/>
 
             <TextView
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textStyle="bold"
                 android:text="test"
                 android:id="@+id/usernameTextView"
                 android:layout_width="wrap_content" />
@@ -100,10 +102,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content" android:text="Logga ut" android:id="@+id/logoutButton" />
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content" android:text="OK" android:id="@+id/startButton" />
         </LinearLayout>
 </LinearLayout>

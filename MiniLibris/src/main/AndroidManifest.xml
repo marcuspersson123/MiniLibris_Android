@@ -43,6 +43,7 @@
             android:exported="false" >
         </provider>
 
+        <receiver android:name="me.webbdev.minilibris.services.DailyAlarmReceiver" />
         <receiver
             android:name="me.webbdev.minilibris.services.CloudBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -74,10 +75,15 @@
             android:value="AIzaSyAiHQ0V8mhX6sMMWIsYDUET7bWn3z5hAbs" />
 
         <activity
-            android:name=".ui.ContactActivity"
+            android:name="me.webbdev.minilibris.ui.ContactActivity"
             android:label="Kontakta MiniLibris"
-            android:parentActivityName="me.webbdev.minilibris.ui.MainActivity">
+            android:parentActivityName="me.webbdev.minilibris.ui.MainActivity" >
         </activity>
+
+        <service
+            android:name="me.webbdev.minilibris.services.DailyAlarmIntentService"
+            android:exported="false" >
+        </service>
     </application>
 
     <!--
