@@ -1,7 +1,6 @@
 package me.webbdev.minilibris.services;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -16,7 +15,7 @@ public class CloudBroadcastReceiver extends WakefulBroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (isNormalMessage(context, intent)) {
             SyncDatabaseIntentService.startWakeful(this, context, false);
-            DailyAlarmIntentService.start(context);
+            AlarmIntentService.start(context);
 
         }
         setResultCode(Activity.RESULT_OK);

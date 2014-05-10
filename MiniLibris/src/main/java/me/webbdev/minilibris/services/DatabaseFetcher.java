@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -36,7 +37,7 @@ public class DatabaseFetcher {
     private String url;
 
     private Timestamp fetchTimestamp;
-     Context context;
+    Context context;
     private static String TAG = "DatabaseFetcher";
     private static String SHARED_PREFERENCES_NAME = "ServerDbChanges";
     private static String LAST_SYNC_KEY = "last_fetch_key";
@@ -63,7 +64,7 @@ public class DatabaseFetcher {
 
     // Fetches a String from the server with raw json object
     // Returns null if not successful
-    private String fetchStringFromServer() throws IOException{
+    private String fetchStringFromServer() throws IOException {
         String result = null;
         try {
             InputStream inputStream;
@@ -91,18 +92,16 @@ public class DatabaseFetcher {
         if (jsonString != null) {
             try {
                 JSONObject jsonObject = new JSONObject(jsonString);
-                if (jsonObject != null) {
-                    boolean serverSuccess = jsonObject.optBoolean("success", false);
-                    if (!serverSuccess) {
-                        Log.e(TAG, "no success variable");
-                        return null;
-                    }
-                } else {
-                    Log.e(TAG, "could not parse json string to object");
+
+                boolean serverSuccess = jsonObject.optBoolean("success", false);
+                if (!serverSuccess) {
+                    Log.e(TAG, "no success variable");
                     return null;
                 }
+
                 return jsonObject;
             } catch (JSONException e) {
+                Toast.makeText(this.context, "Serverfel. Är du ansluten till Internet?", Toast.LENGTH_LONG).show();
                 Log.e(TAG, "could not parse json", e);
                 return null;
             }
@@ -138,7 +137,6 @@ public class DatabaseFetcher {
         }
         editor.commit();
     }
-
 
 
     // will make fetching take everything from beginning om time

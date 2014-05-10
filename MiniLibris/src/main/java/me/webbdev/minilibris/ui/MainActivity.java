@@ -31,8 +31,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
-import me.webbdev.minilibris.services.DailyAlarmIntentService;
-import me.webbdev.minilibris.services.DailyAlarmReceiver;
+import me.webbdev.minilibris.services.AlarmIntentService;
+import me.webbdev.minilibris.services.ScheduledAlarmReceiver;
 import me.webbdev.minilibris.services.SyncDatabaseIntentService;
 
 public class MainActivity extends Activity implements BooksListFragment.BooksListFragmentListener, TaskFragment.TaskFragmentCallback {
@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
             // App is just started.
             // Synchronize the database from beginning of time
             SyncDatabaseIntentService.start(this,true);
-            DailyAlarmIntentService.start(this);
+            AlarmIntentService.start(this);
 
 
             // Make sure the daily alarm is setup
@@ -111,18 +111,17 @@ public class MainActivity extends Activity implements BooksListFragment.BooksLis
     // It is OK to set the same Alarm several times if the PendingIntent is the same.
     private void setupAlarm() {
         Calendar updateTime = Calendar.getInstance();
-        //updateTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         updateTime.set(Calendar.HOUR_OF_DAY, 8);
         updateTime.set(Calendar.MINUTE, 0);
 
-        Intent downloader = new Intent(this, DailyAlarmReceiver.class);
-        PendingIntent recurringDownload = PendingIntent.getBroadcast(this,
-                0, downloader, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent intent = new Intent(this, ScheduledAlarmReceiver.class);
+        PendingIntent recurringIntent = PendingIntent.getBroadcast(this,
+                0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarms = (AlarmManager) getSystemService(
                 Context.ALARM_SERVICE);
         alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 updateTime.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, recurringDownload);
+                AlarmManager.INTERVAL_DAY, recurringIntent);
     }
 
     private int getUserId() {

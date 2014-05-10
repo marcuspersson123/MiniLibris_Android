@@ -1,6 +1,5 @@
 package me.webbdev.minilibris.services;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.IntentService;
 import android.app.Notification;
@@ -10,13 +9,8 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,18 +20,18 @@ import me.webbdev.minilibris.database.MiniLibrisContract;
 import me.webbdev.minilibris.ui.MainActivity;
 
 
-public class DailyAlarmIntentService extends IntentService {
+public class AlarmIntentService extends IntentService {
 
 
     private static final int BOOK_WAITING_NOTIFICATION_ID = 1;
     private static final int BOOK_FORGOTTEN_NOTIFICATION_ID = 2;
 
-    public DailyAlarmIntentService() {
-        super("DailyAlarmIntentService");
+    public AlarmIntentService() {
+        super("AlarmIntentService");
     }
 
     public static void start(Context context) {
-        Intent intent = new Intent(context,DailyAlarmIntentService.class);
+        Intent intent = new Intent(context, AlarmIntentService.class);
         context.startService(intent);
     }
 
@@ -59,18 +53,18 @@ public class DailyAlarmIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         int waitingBooks = this.getWaitingBooks();
-        if (waitingBooks==0) {
+        if (waitingBooks == 0) {
             removeNotification(BOOK_WAITING_NOTIFICATION_ID);
-        } else if (waitingBooks==1) {
+        } else if (waitingBooks == 1) {
             showNotification(BOOK_WAITING_NOTIFICATION_ID, "Du har en bok att hämta!");
         } else {
             showNotification(BOOK_WAITING_NOTIFICATION_ID, "Du har " + waitingBooks + " böcker att hämta!");
         }
 
         int forgottenBooks = this.getForgottenBooks();
-        if (forgottenBooks==0) {
+        if (forgottenBooks == 0) {
             removeNotification(BOOK_FORGOTTEN_NOTIFICATION_ID);
-        } else if (forgottenBooks==1) {
+        } else if (forgottenBooks == 1) {
             showNotification(BOOK_FORGOTTEN_NOTIFICATION_ID, "En bok måste lämnas!");
         } else {
             showNotification(BOOK_FORGOTTEN_NOTIFICATION_ID, forgottenBooks + " böcker att lämna tillbaka!");
@@ -100,26 +94,26 @@ public class DailyAlarmIntentService extends IntentService {
     }
 
     private void showNotification(int notificationId, String msg) {
-            NotificationManager notificationManager;
-            notificationManager = (NotificationManager)
-                    this.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager;
+        notificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class), 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), 0);
 
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this.getApplicationContext())
-                            .setContentTitle("MiniLibris")
-                            .setContentText(msg)
-                    .setWhen(System.currentTimeMillis())
-                            .setSmallIcon(R.drawable.ic_stat_book)
-                    .setSmallIcon(R.drawable.ic_stat_book)
-        .setContentIntent(contentIntent);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this.getApplicationContext())
+                        .setContentTitle("MiniLibris")
+                        .setContentText(msg)
+                        .setWhen(System.currentTimeMillis())
+                        .setSmallIcon(R.drawable.ic_stat_book)
+                        .setSmallIcon(R.drawable.ic_stat_book)
+                        .setContentIntent(contentIntent);
 
 
-Notification notification = mBuilder.build();
+        Notification notification = mBuilder.build();
 
-            notificationManager.notify(notificationId, notification);
+        notificationManager.notify(notificationId, notification);
 
     }
 

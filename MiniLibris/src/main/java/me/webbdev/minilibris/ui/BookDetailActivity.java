@@ -16,17 +16,24 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
     private BookDetailFragment bookDetailFragment;
     private CreateReservationTaskFragment mCreateReservationTaskFragment;
     private DeleteReservationTaskFragment mDeleteReservationTaskFragment;
+    private int userId;
+    private int bookId;
 
     // Display the Activity.
     // Save references to the fragments.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        translateIntent(getIntent());
         setContentView(R.layout.activity_book_detail);
         FragmentManager fragmentManager = getFragmentManager();
         this.bookDetailFragment = (BookDetailFragment) fragmentManager.findFragmentById(R.id.bookDetailFragment);
         mCreateReservationTaskFragment = (CreateReservationTaskFragment) fragmentManager.findFragmentById(R.id.createReservationTaskFragment);
         mDeleteReservationTaskFragment = (DeleteReservationTaskFragment) fragmentManager.findFragmentById(R.id.deleteReservationTaskFragment);
+
+        Bundle bundle = this.bookDetailFragment.createArgumentsBundle(this.bookId, this.userId);
+        this.bookDetailFragment.useArguments(bundle);
+        this.bookDetailFragment.updateViews();
     }
 
     @Override
@@ -91,12 +98,12 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
 
     @Override
     public int getUserId() {
-        return getIntent().getIntExtra("user_id", -1);
+        return this.userId;
     }
 
     @Override
     public int getBookId() {
-        return getIntent().getIntExtra("id", -1);
+        return this.bookId;
     }
 
     // Message from a fragment
@@ -111,9 +118,14 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         mCreateReservationTaskFragment.start();
     }
 
-    public static Intent createStartIntent(Context context, int id, int userId) {
+    private void translateIntent(Intent intent) {
+        this.userId = intent.getIntExtra("user_id",-1);
+        this.bookId = intent.getIntExtra("book_id",-1);
+    }
+
+    public static Intent createStartIntent(Context context, int bookId, int userId) {
         Intent intent = new Intent(context, BookDetailActivity.class);
-        intent.putExtra("id", id);
+        intent.putExtra("book_id", bookId);
         intent.putExtra("user_id", userId);
         return intent;
     }

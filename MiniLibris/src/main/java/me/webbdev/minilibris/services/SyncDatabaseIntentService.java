@@ -65,7 +65,7 @@ public class SyncDatabaseIntentService extends IntentService {
         }
 
         // Update important notifications, such as if books are available to fetch at MiniLibris
-        DailyAlarmIntentService.start(this);
+        AlarmIntentService.start(this);
         // If this service was called to be wakeful, notify the the WakefulBroadCastReceiver
         CloudBroadcastReceiver.completeWakefulIntent(intent);
     }

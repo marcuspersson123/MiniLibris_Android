@@ -43,7 +43,7 @@
             android:exported="false" >
         </provider>
 
-        <receiver android:name="me.webbdev.minilibris.services.DailyAlarmReceiver" />
+        <receiver android:name=".services.ScheduledAlarmReceiver" />
         <receiver
             android:name="me.webbdev.minilibris.services.CloudBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -81,7 +81,7 @@
         </activity>
 
         <service
-            android:name="me.webbdev.minilibris.services.DailyAlarmIntentService"
+            android:name=".services.AlarmIntentService"
             android:exported="false" >
         </service>
     </application>

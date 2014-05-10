@@ -4,13 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class DailyAlarmReceiver extends BroadcastReceiver {
+public class ScheduledAlarmReceiver extends BroadcastReceiver {
 
-        private static final String TAG = "DailyAlarmReceiver";
+        private static final String TAG = "ScheduledAlarmReceiver";
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent newIntent = new Intent(context, DailyAlarmIntentService.class);
+            Intent newIntent = new Intent(context, AlarmIntentService.class);
             context.startService(newIntent);
         }
 
