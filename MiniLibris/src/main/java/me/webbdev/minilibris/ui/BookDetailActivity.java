@@ -5,6 +5,8 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import me.webbdev.minilibris.R;
@@ -34,6 +36,32 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         Bundle bundle = this.bookDetailFragment.createArgumentsBundle(this.bookId, this.userId);
         this.bookDetailFragment.useArguments(bundle);
         this.bookDetailFragment.updateViews();
+    }
+
+    // Inflate the menu; this adds items to the action bar.
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.book_detail, menu);
+        return true;
+    }
+
+    // An a menu item was selected
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_login:
+                intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                break;
+
+            case R.id.action_contact:
+                intent = new Intent(this, ContactActivity.class);
+                startActivity(intent);
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -129,4 +157,6 @@ public class BookDetailActivity extends Activity implements TaskFragment.TaskFra
         intent.putExtra("user_id", userId);
         return intent;
     }
+
+
 }

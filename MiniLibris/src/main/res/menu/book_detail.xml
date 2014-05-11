@@ -1,9 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="me.webbdev.minilibris.ui.BookDetailActivity" >
-    
-    <item android:id="@+id/action_settings"
+    tools:context="me.webbdev.minilibris.ui.MainActivity" >
+
+    <item android:id="@+id/action_login"
         android:title="@string/action_login"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:icon="@android:drawable/ic_lock_idle_lock"
+        android:showAsAction="always" />
+
+    <item android:id="@+id/action_contact"
+        android:title="Kontakta MiniLibris"
+        android:orderInCategory="110"
+        android:icon="@android:drawable/ic_menu_mapmode"
+        android:showAsAction="ifRoom" />
 </menu>

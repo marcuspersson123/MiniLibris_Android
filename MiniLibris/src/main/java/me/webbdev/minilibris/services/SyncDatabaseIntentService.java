@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ import java.sql.Timestamp;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import me.webbdev.minilibris.R;
 import me.webbdev.minilibris.ui.MainActivity;
 
 
@@ -46,22 +48,22 @@ public class SyncDatabaseIntentService extends IntentService {
         // Try to determine internet connectivity. It is not possible to do that reliably. An IOException will probably be the result.
         if (isNetworkConnected()) {
             this.removeNotification(INTERNET_FAIL_NOTIFICATION_ID);
-            this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synchronizing database");
+            this.showNotification(SYNCHRONIZING_NOTIFICATION_ID, "Synkroniserar...");
             boolean success = false;
             try {
                 success = syncAllTables(synchronizeAll);
                 if (success) {
                     this.removeNotification(SERVER_FAIL_NOTIFICATION_ID);
                 } else {
-                    this.showNotification(SERVER_FAIL_NOTIFICATION_ID, "Failed to synchronize");
+                    this.showNotification(SERVER_FAIL_NOTIFICATION_ID, "Det gick inte att synkronisera");
                 }
             } catch (IOException e) {
-                this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "No connection to MiniLibris server");
+                this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Det gick inte att koppla till MiniLibris server");
             }
 
             this.removeNotification(SYNCHRONIZING_NOTIFICATION_ID);
         } else {
-            this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Not connected to the Internet");
+            this.showNotification(INTERNET_FAIL_NOTIFICATION_ID, "Internetanslutning saknas");
         }
 
         // Update important notifications, such as if books are available to fetch at MiniLibris
@@ -94,35 +96,34 @@ public class SyncDatabaseIntentService extends IntentService {
         notificationManager.cancel(notificationId);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void showNotification(int notificationId, String msg) {
-        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
-        if (currentApiVersion >= Build.VERSION_CODES.JELLY_BEAN) {
+        NotificationManager notificationManager;
+        notificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            NotificationManager notificationManager;
-            notificationManager = (NotificationManager)
-                    this.getSystemService(Context.NOTIFICATION_SERVICE);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MainActivity.class), 0);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class), 0);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this.getApplicationContext())
+                        .setContentTitle("MiniLibris")
+                        .setContentText(msg)
+                        .setWhen(System.currentTimeMillis())
+                        .setContentIntent(contentIntent);
 
-            Notification.Builder mBuilder =
-                    new Notification.Builder(this)
-                            .setContentTitle("MiniLibris")
-                            .setStyle(new Notification.BigTextStyle().bigText(msg))
-                            .setContentText(msg);
-
-            switch (notificationId) {
-                case SYNCHRONIZING_NOTIFICATION_ID:
-                    mBuilder.setSmallIcon(android.R.drawable.ic_popup_sync);
-                    break;
-                default:
-                    mBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-                    break;
-            }
-            mBuilder.setContentIntent(contentIntent);
-            notificationManager.notify(notificationId, mBuilder.build());
+        switch (notificationId) {
+            case SYNCHRONIZING_NOTIFICATION_ID:
+                mBuilder.setSmallIcon(android.R.drawable.ic_popup_sync);
+                break;
+            default:
+                mBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                break;
         }
+
+        Notification notification = mBuilder.build();
+
+        notificationManager.notify(notificationId, notification);
+
     }
 
     // Synchronises rows from all tables

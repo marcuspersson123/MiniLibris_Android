@@ -6,7 +6,7 @@
     <string name="all_books">Alla böcker</string>
     <string name="lent_books">Lånade</string>
     <string name="reserved_books">Reserverade</string>
-    <string name="title_activity_book_detail">Information om boken</string>
+    <string name="title_activity_book_detail">Detaljer</string>
     <string name="short_text">\"A short text\"</string>
     <string name="sample_title">The Sample Book</string>
     <string name="select_reservation_date_title">Reservera från</string>
@@ -20,6 +20,6 @@
     <string name="failed_to_reserve">Fel! Gick inte att reservera.</string>
     <string name="title_activity_contact">ContactActivity</string>
     <string name="books_to_fetch">Kan hämtas</string>
-    <string name="to_return">Återlämnas</string>
+    <string name="to_return">Försenade</string>
 
 </resources>

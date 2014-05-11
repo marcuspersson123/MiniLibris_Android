@@ -112,23 +112,13 @@ public class BooksListFragment extends ListFragment implements
                 cursorLoader = new CursorLoader(mContext,
                         sttingleUri, databaseFields, where, null, sortOrder);
 
-/*                cursorLoader = new CursorLoader(mContext,
-                        sttingleUri, MiniLibrisContract.Books.ALL_FIELDS, "is_lent=? and begins<='?' and ends>='?'", new String[]{"0",todayString, todayString}, sortOrder);
-*/
-
-
-
-/*                Uri sttingleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
-                cursorLoader = new CursorLoader(mContext,
-                        sttingleUri, databaseFields, "is_lent=? and Datetime(begins)<=Datetime('?') and DateTime(ends)>=Datetime('?')", new String[]{"0",todayString, todayString}, sortOrder);
- */
                 break;
 
             case LENT_BOOKS_MODE:
                 // Had problems with using parameters here for an unknown reason.
                 // Thus, a long where clause follows.
-                String where2 = "is_lent=1 and date(ends)>=date('"+todayString+"')";
-
+// this row excludes loans that have expired                String where2 = "is_lent=1 and date(ends)>=date('"+todayString+"')";
+                String where2 = "is_lent=1";
                 Uri singleUri = ContentUris.withAppendedId(MiniLibrisContract.UserBooks.CONTENT_URI, userId);
                 cursorLoader = new CursorLoader(mContext,
                         singleUri, databaseFields, where2, null, sortOrder);
